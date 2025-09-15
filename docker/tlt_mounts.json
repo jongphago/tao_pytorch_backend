@@ -1,0 +1,41 @@
+{
+    "Mounts": [
+        {
+            "source": "/home/jongphago/projects/tao_tutorials/notebooks/tao_launcher_starter_kit",
+            "destination": "/workspace/tao-experiments"
+        },
+        {
+            "source": "/home/jongphago/projects/tao_tutorials/notebooks/tao_launcher_starter_kit/data/reidentificationnet",
+            "destination": "/data"
+        },
+        {
+            "source": "/home/jongphago/projects/tao_tutorials/notebooks/tao_launcher_starter_kit/data/reidentificationnet/model",
+            "destination": "/model"
+        },
+        {
+            "source": "/home/jongphago/projects/tao_tutorials/notebooks/tao_launcher_starter_kit/reidentificationnet/specs",
+            "destination": "/specs"
+        },
+        {
+            "source": "/home/jongphago/projects/tao_tutorials/notebooks/tao_launcher_starter_kit/reidentificationnet",
+            "destination": "/results"
+        }
+    ],
+    "DockerOptions": {
+        "shm_size": "16G",
+        "ulimits": {
+            "memlock": -1,
+            "stack": 67108864
+        }
+    },
+    "Envs": [
+        {
+            "variable": "WANDB_API_KEY",
+            "value": "0612bf248e28ab6dbd0e463f7602bf40ce8a1824"
+        },
+        {
+            "variable": "WANDB_ENTITY",
+            "value": "jongphago"
+        }
+    ]
+}

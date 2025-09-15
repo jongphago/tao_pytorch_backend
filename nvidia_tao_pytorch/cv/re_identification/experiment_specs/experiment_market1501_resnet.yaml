@@ -53,3 +53,9 @@ train:
     triplet_loss_margin: 0.3
   num_epochs: 5
   checkpoint_interval: 1
+wandb:
+  enable: true
+  project: "TAO Toolkit"   # 혹은 원하는 프로젝트명
+  entity: "jongphago"      # 팀/계정 엔티티
+  tags: ["training", "reid", "market1501"]
+  name: "reid_resnet50"
