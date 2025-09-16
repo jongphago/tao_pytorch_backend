@@ -63,3 +63,4 @@ pointcloud/pointpillars/output/
 pointcloud/build/
 pointcloud/pointpillars/dist/
 .env
+wandb
