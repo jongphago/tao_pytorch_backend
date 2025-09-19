@@ -70,6 +70,24 @@ def main():
         default="1e-5,5e-5,1e-4,5e-4,1e-3",
         help="Comma-separated list of weight_decay values to try",
     )
+    parser.add_argument(
+        "--warmup_factor_values",
+        type=str,
+        default="0.01,0.05,0.1",
+        help="Comma-separated list of warmup_factor values to try",
+    )
+    parser.add_argument(
+        "--warmup_iters_values",
+        type=str,
+        default="0,10,20",
+        help="Comma-separated list of warmup_iters values to try",
+    )
+    parser.add_argument(
+        "--triplet_margin_values",
+        type=str,
+        default="0.2,0.3,0.4",
+        help="Comma-separated list of triplet_loss_margin values to try",
+    )
 
     args, unknown_args = parser.parse_known_args()
 
@@ -90,13 +108,20 @@ def main():
     # Prepare sweep configuration
     lr_values = [float(v) for v in args.lr_values.split(",") if v.strip()]
     wd_values = [float(v) for v in args.wd_values.split(",") if v.strip()]
+    wf_values = [float(v) for v in args.warmup_factor_values.split(",") if v.strip()]
+    wi_values = [int(float(v)) for v in args.warmup_iters_values.split(",") if v.strip()]
+    margin_values = [float(v) for v in args.triplet_margin_values.split(",") if v.strip()]
+
     sweep_config = {
-        "name": "reid_lr_sweep",
+        "name": "reid_resnet_perf_sweep",
         "method": args.method,
         "metric": {"name": "mAP", "goal": "maximize"},
         "parameters": {
             "lr": {"values": lr_values},
             "weight_decay": {"values": wd_values},
+            "warmup_factor": {"values": wf_values},
+            "warmup_iters": {"values": wi_values},
+            "triplet_loss_margin": {"values": margin_values},
         },
     }
 
@@ -110,11 +135,18 @@ def main():
         run = wandb.init(project=project, entity=entity)
         lr = wandb.config.get("lr")
         weight_decay = wandb.config.get("weight_decay")
+        warmup_factor = wandb.config.get("warmup_factor")
+        warmup_iters = wandb.config.get("warmup_iters")
+        triplet_loss_margin = wandb.config.get("triplet_loss_margin")
 
         # Derive per-run outputs and consistent W&B run naming
         run_suffix = run.name.replace(" ", "_") if run.name else run.id
         run_results_dir = os.path.join(base_results_dir, "sweep", sweep_id, run_suffix)
-        wandb_name_override = run.name if run.name else f"lr_{lr}_wd_{weight_decay}"
+        wandb_name_override = (
+            run.name
+            if run.name
+            else f"lr_{lr}_wd_{weight_decay}_wf_{warmup_factor}_wi_{warmup_iters}_m_{triplet_loss_margin}"
+        )
 
         # Build the child training command
         # We call the same entrypoint with subtask `train` and override base_lr + results_dir + wandb.name
@@ -133,6 +165,9 @@ def main():
             f"results_dir={run_results_dir}",
             f"train.optim.base_lr={lr}",
             f"train.optim.weight_decay={weight_decay}",
+            f"train.optim.warmup_factor={warmup_factor}",
+            f"train.optim.warmup_iters={warmup_iters}",
+            f"train.optim.triplet_loss_margin={triplet_loss_margin}",
             f"wandb.name={wandb_name_override}",
         ])
 
@@ -155,7 +190,14 @@ def main():
             wandb.finish()
 
     # Execute the sweep trials
-    count = args.count if args.count is not None else max(len(lr_values), len(wd_values))
+    total_grid = (
+        len(lr_values)
+        * len(wd_values)
+        * len(wf_values)
+        * len(wi_values)
+        * len(margin_values)
+    )
+    count = args.count if args.count is not None else total_grid
     wandb.agent(sweep_id, function=train_sweep, count=count, project=project, entity=entity)
 
 
