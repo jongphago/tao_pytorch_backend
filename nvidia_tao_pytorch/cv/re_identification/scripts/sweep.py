@@ -59,6 +59,12 @@ def main():
     parser.add_argument("--count", type=int, default=None)
     parser.add_argument("--method", type=str, choices=["grid", "random", "bayes"], default="grid")
     parser.add_argument(
+        "--sweep_id",
+        type=str,
+        default=None,
+        help="Existing W&B sweep ID to resume. If set, no new sweep is created.",
+    )
+    parser.add_argument(
         "--lr_values",
         type=str,
         default="1e-4,3e-4,1e-3,3e-3,1e-2",
@@ -125,7 +131,7 @@ def main():
         },
     }
 
-    sweep_id = wandb.sweep(sweep_config, project=project, entity=entity)
+    sweep_id = args.sweep_id if args.sweep_id else wandb.sweep(sweep_config, project=project, entity=entity)
 
     # Determine base results_dir and ensure per-run isolation
     base_results_dir = _parse_unknown_results_dir(unknown_args, "/results/reid_sweep")
@@ -142,11 +148,22 @@ def main():
         # Derive per-run outputs and consistent W&B run naming
         run_suffix = run.name.replace(" ", "_") if run.name else run.id
         run_results_dir = os.path.join(base_results_dir, "sweep", sweep_id, run_suffix)
-        wandb_name_override = (
-            run.name
-            if run.name
-            else f"lr_{lr}_wd_{weight_decay}_wf_{warmup_factor}_wi_{warmup_iters}_m_{triplet_loss_margin}"
-        )
+        # Compose name without None values
+        if run.name:
+            wandb_name_override = run.name
+        else:
+            name_parts = []
+            if lr is not None:
+                name_parts.append(f"lr_{lr}")
+            if weight_decay is not None:
+                name_parts.append(f"wd_{weight_decay}")
+            if warmup_factor is not None:
+                name_parts.append(f"wf_{warmup_factor}")
+            if warmup_iters is not None:
+                name_parts.append(f"wi_{warmup_iters}")
+            if triplet_loss_margin is not None:
+                name_parts.append(f"m_{triplet_loss_margin}")
+            wandb_name_override = "_".join(name_parts) if name_parts else run_suffix
 
         # Build the child training command
         # We call the same entrypoint with subtask `train` and override base_lr + results_dir + wandb.name
@@ -161,15 +178,18 @@ def main():
 
         # Pass through any user-provided overrides first, then append our final overrides to take precedence
         cmd_parts.extend(unknown_args)
-        cmd_parts.extend([
-            f"results_dir={run_results_dir}",
-            f"train.optim.base_lr={lr}",
-            f"train.optim.weight_decay={weight_decay}",
-            f"train.optim.warmup_factor={warmup_factor}",
-            f"train.optim.warmup_iters={warmup_iters}",
-            f"train.optim.triplet_loss_margin={triplet_loss_margin}",
-            f"wandb.name={wandb_name_override}",
-        ])
+        cmd_parts.extend([f"results_dir={run_results_dir}"])
+        if lr is not None:
+            cmd_parts.append(f"train.optim.base_lr={lr}")
+        if weight_decay is not None:
+            cmd_parts.append(f"train.optim.weight_decay={weight_decay}")
+        if warmup_factor is not None:
+            cmd_parts.append(f"train.optim.warmup_factor={warmup_factor}")
+        if warmup_iters is not None:
+            cmd_parts.append(f"train.optim.warmup_iters={warmup_iters}")
+        if triplet_loss_margin is not None:
+            cmd_parts.append(f"train.optim.triplet_loss_margin={triplet_loss_margin}")
+        cmd_parts.append(f"wandb.name={wandb_name_override}")
 
         env = os.environ.copy()
         # Ensure W&B child process attaches to this run
@@ -190,14 +210,18 @@ def main():
             wandb.finish()
 
     # Execute the sweep trials
-    total_grid = (
-        len(lr_values)
-        * len(wd_values)
-        * len(wf_values)
-        * len(wi_values)
-        * len(margin_values)
-    )
-    count = args.count if args.count is not None else total_grid
+    if args.sweep_id:
+        # When attaching to an existing sweep, default to agent-managed count unless user overrides
+        count = args.count
+    else:
+        total_grid = (
+            len(lr_values)
+            * len(wd_values)
+            * len(wf_values)
+            * len(wi_values)
+            * len(margin_values)
+        )
+        count = args.count if args.count is not None else total_grid
     wandb.agent(sweep_id, function=train_sweep, count=count, project=project, entity=entity)
 
 
