@@ -19,6 +19,10 @@
         {
             "source": "/home/jongphago/projects/tao_tutorials/notebooks/tao_launcher_starter_kit/reidentificationnet",
             "destination": "/results"
+        },
+        {
+            "source": "/home/jongphago/projects/tao_pytorch_backend/nvidia_tao_pytorch/cv/re_identification/sweeps",
+            "destination": "/sweeps"
         }
     ],
     "DockerOptions": {

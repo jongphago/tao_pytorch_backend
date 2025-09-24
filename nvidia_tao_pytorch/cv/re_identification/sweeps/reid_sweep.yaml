@@ -1,0 +1,18 @@
+name: reid_resnet_perf_sweep
+method: grid
+metric:
+  name: mAP
+  goal: maximize
+parameters:
+  lr: [1.0e-4, 3.0e-4, 1.0e-3, 3.0e-3, 1.0e-2]
+  weight_decay: [1.0e-5, 5.0e-5, 1.0e-4, 5.0e-4, 1.0e-3]
+  warmup_factor: [0.01, 0.05, 0.1]
+  warmup_iters: [0, 10, 20]
+  triplet_loss_margin: [0.2, 0.3, 0.4]
+count: 0
+results_dir_base: /results/reid_sweep
+early_terminate:
+  type: hyperband
+  max_iter: 12
+  s: 2
+  min_iter: 2

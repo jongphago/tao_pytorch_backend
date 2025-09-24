@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--config-name", dest="config_name", required=True, help="Hydra config name (spec file)")
 
     parser.add_argument("--count", type=int, default=None)
-    parser.add_argument("--method", type=str, choices=["grid", "random", "bayes"], default="grid")
+    parser.add_argument("--method", type=str, choices=["grid", "random", "bayes"], default=None)
     parser.add_argument(
         "--sweep_id",
         type=str,
@@ -65,33 +65,39 @@ def main():
         help="Existing W&B sweep ID to resume. If set, no new sweep is created.",
     )
     parser.add_argument(
+        "--sweep-config",
+        type=str,
+        default=None,
+        help="Path to a YAML file containing sweep settings (name, method, parameters, count, results_dir_base).",
+    )
+    parser.add_argument(
         "--lr_values",
         type=str,
-        default="1e-4,3e-4,1e-3,3e-3,1e-2",
+        default=None,
         help="Comma-separated list of learning rates to try",
     )
     parser.add_argument(
         "--wd_values",
         type=str,
-        default="1e-5,5e-5,1e-4,5e-4,1e-3",
+        default=None,
         help="Comma-separated list of weight_decay values to try",
     )
     parser.add_argument(
         "--warmup_factor_values",
         type=str,
-        default="0.01,0.05,0.1",
+        default=None,
         help="Comma-separated list of warmup_factor values to try",
     )
     parser.add_argument(
         "--warmup_iters_values",
         type=str,
-        default="0,10,20",
+        default=None,
         help="Comma-separated list of warmup_iters values to try",
     )
     parser.add_argument(
         "--triplet_margin_values",
         type=str,
-        default="0.2,0.3,0.4",
+        default=None,
         help="Comma-separated list of triplet_loss_margin values to try",
     )
 
@@ -111,17 +117,47 @@ def main():
 
     project, entity = _load_wandb_project_entity(spec_path)
 
-    # Prepare sweep configuration
-    lr_values = [float(v) for v in args.lr_values.split(",") if v.strip()]
-    wd_values = [float(v) for v in args.wd_values.split(",") if v.strip()]
-    wf_values = [float(v) for v in args.warmup_factor_values.split(",") if v.strip()]
-    wi_values = [int(float(v)) for v in args.warmup_iters_values.split(",") if v.strip()]
-    margin_values = [float(v) for v in args.triplet_margin_values.split(",") if v.strip()]
+    # Prepare sweep configuration (from optional YAML file, then CLI overrides, then defaults)
+    def _as_list(v):
+        if v is None:
+            return None
+        if isinstance(v, list):
+            return v
+        if isinstance(v, str):
+            return [s for s in v.split(",") if s.strip()]
+        return [v]
+
+    sweep_cfg = {}
+    if args.sweep_config:
+        try:
+            with open(args.sweep_config, "r") as f:
+                sweep_cfg = yaml.safe_load(f) or {}
+        except Exception as e:
+            print(f"WARNING: Failed to load sweep config '{args.sweep_config}': {e}")
+            sweep_cfg = {}
+
+    cfg_params = sweep_cfg.get("parameters", {}) if isinstance(sweep_cfg, dict) else {}
+
+    method = args.method or sweep_cfg.get("method") or "grid"
+    name = sweep_cfg.get("name", "reid_resnet_perf_sweep")
+    metric = sweep_cfg.get("metric", {"name": "mAP", "goal": "maximize"})
+
+    lr_values_raw = _as_list(args.lr_values) or cfg_params.get("lr") or ["1e-4", "3e-4", "1e-3", "3e-3", "1e-2"]
+    wd_values_raw = _as_list(args.wd_values) or cfg_params.get("weight_decay") or ["1e-5", "5e-5", "1e-4", "5e-4", "1e-3"]
+    wf_values_raw = _as_list(args.warmup_factor_values) or cfg_params.get("warmup_factor") or ["0.01", "0.05", "0.1"]
+    wi_values_raw = _as_list(args.warmup_iters_values) or cfg_params.get("warmup_iters") or [0, 10, 20]
+    margin_values_raw = _as_list(args.triplet_margin_values) or cfg_params.get("triplet_loss_margin") or [0.2, 0.3, 0.4]
+
+    lr_values = [float(v) for v in lr_values_raw]
+    wd_values = [float(v) for v in wd_values_raw]
+    wf_values = [float(v) for v in wf_values_raw]
+    wi_values = [int(float(v)) for v in wi_values_raw]
+    margin_values = [float(v) for v in margin_values_raw]
 
     sweep_config = {
-        "name": "reid_resnet_perf_sweep",
-        "method": args.method,
-        "metric": {"name": "mAP", "goal": "maximize"},
+        "name": name,
+        "method": method,
+        "metric": metric,
         "parameters": {
             "lr": {"values": lr_values},
             "weight_decay": {"values": wd_values},
@@ -134,7 +170,8 @@ def main():
     sweep_id = args.sweep_id if args.sweep_id else wandb.sweep(sweep_config, project=project, entity=entity)
 
     # Determine base results_dir and ensure per-run isolation
-    base_results_dir = _parse_unknown_results_dir(unknown_args, "/results/reid_sweep")
+    cfg_base_dir = sweep_cfg.get("results_dir_base", "/results/reid_sweep") if isinstance(sweep_cfg, dict) else "/results/reid_sweep"
+    base_results_dir = _parse_unknown_results_dir(unknown_args, cfg_base_dir)
 
     def train_sweep():
         # Initialize the sweep run
@@ -221,7 +258,18 @@ def main():
             * len(wi_values)
             * len(margin_values)
         )
-        count = args.count if args.count is not None else total_grid
+        cfg_count = None
+        if isinstance(sweep_cfg, dict):
+            cfg_count = sweep_cfg.get("count", None)
+        if args.count is not None:
+            count = args.count
+        elif cfg_count not in (None, 0):
+            try:
+                count = int(cfg_count)
+            except Exception:
+                count = total_grid
+        else:
+            count = total_grid
     wandb.agent(sweep_id, function=train_sweep, count=count, project=project, entity=entity)
 
 
