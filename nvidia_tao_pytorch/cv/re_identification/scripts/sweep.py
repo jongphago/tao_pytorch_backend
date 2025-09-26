@@ -166,6 +166,9 @@ def main():
             "triplet_loss_margin": {"values": margin_values},
         },
     }
+    # early_terminate 설정이 있으면 추가
+    if sweep_cfg.get("early_terminate", None):
+        sweep_config["early_terminate"] = sweep_cfg.get("early_terminate")
 
     sweep_id = args.sweep_id if args.sweep_id else wandb.sweep(sweep_config, project=project, entity=entity)
 
