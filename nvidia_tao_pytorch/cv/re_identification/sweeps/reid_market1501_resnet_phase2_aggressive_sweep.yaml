@@ -4,30 +4,30 @@ metric:
   name: mAP
   goal: maximize
 parameters:
-  # Phase 1 결과 기반 (전략 B: batch_size 재탐색)
+  # Phase 1 결과 + Phase 2 검증 결과 반영 (2025-10-01 재수정)
   # 최고 성능: solar-sweep-1 (mAP 0.7044)
   # lr=0.002, wd=5e-05, wf=0.05, wi=5, tlm=0.35, bs=32, fd=512, gamma=0.5
   
   lr: [1.0e-3, 2.0e-3, 3.0e-3]  # 좁은 범위 유지
-  weight_decay: [5.0e-5, 1.0e-4, 1.0e-3]
-  warmup_factor: [0.05, 0.08, 0.1]
+  weight_decay: [5.0e-5, 1.0e-4]  # Phase 1 최고값(5e-05) 중심
+  warmup_factor: [0.05, 0.08]  # Phase 1 최고값(0.05) 포함
   warmup_iters: [5, 10]  # 5와 10만 유지
-  triplet_loss_margin: [0.3, 0.35, 0.4]
+  triplet_loss_margin: [0.35, 0.4]  # Phase 1 최고값(0.35) 중심
   
   # batch_size 재탐색 (32 중심)
   batch_size: [24, 32, 48]  # 32 중심으로 추가 탐색
-  feat_dim: [512]           # 고정: 명확히 최고
-  gamma: [0.3, 0.5]
+  feat_dim: [512]           # 고정
+  gamma: [0.5]              # Phase 1 최고값으로 고정! (0.3 제거)
   
-  # 새로운 고급 매개변수
-  warmup_method: ["linear", "cosine"]
-  num_instances: [2, 4, 8]
-  prob: [0.5, 0.7]  # 범위 축소 (0.3 제거)
-  re_prob: [0.5, 0.7]  # 범위 축소 (0.3 제거)
-  with_center_loss: [true, false]
+  # Phase 2 검증 완료 매개변수
+  warmup_method: ["linear"]  # cosine 제거 (성능 69% 낮음)
+  num_instances: [2, 4]      # 8 제거 (성능 급락), 2 중심
+  prob: [0.5, 0.7]
+  re_prob: [0.3, 0.5, 0.7]
+  # with_center_loss 제거 (설정 오류)
   with_flip_feature: [true, false]
 
-count: 100
+count: 80  # 100 → 80 (with_center_loss, cosine, num_instances=8 제거)
 results_dir_base: /results/results/market1501/resnet50/phase2_aggressive
 early_terminate:
   type: hyperband

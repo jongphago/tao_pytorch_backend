@@ -1,0 +1,37 @@
+name: reid_market1501_resnet_phase3_sweep
+method: bayes
+metric:
+  name: mAP
+  goal: maximize
+parameters:
+  # Phase 1 최고 성능(solar-sweep-1, mAP 0.7044) 기반 고정값
+  # lr=0.002, wd=5e-05, wf=0.05, wi=5, tlm=0.35, bs=32, fd=512, gamma=0.5
+  
+  # 모든 기존 매개변수 고정 (Phase 1 최고값)
+  lr: [2.0e-3]                    # 고정
+  weight_decay: [5.0e-5]          # Phase 1 최고값 (0.0001 아님!)
+  warmup_factor: [0.05]           # Phase 1 최고값
+  warmup_iters: [5]               # 고정
+  triplet_loss_margin: [0.35]     # Phase 1 최고값 (0.4 아님!)
+  batch_size: [32]                # 고정
+  feat_dim: [512]                 # 고정
+  gamma: [0.5]                    # Phase 1 최고값으로 복원! (0.3에서 변경)
+  
+  # Phase 2에서 검증된 새 매개변수 (효과적인 것만)
+  warmup_method: ["linear"]       # 고정 (cosine은 평균 0.3223로 낮음)
+  num_instances: [2]              # 고정 (4, 8은 성능 급락)
+  with_flip_feature: [true, false]  # True가 좋지만 재검증
+  
+  # 유일한 탐색 영역: 데이터 증강 최적화
+  prob: [0.5, 0.6, 0.7, 0.8]           # 수평 플립 확률
+  re_prob: [0.3, 0.4, 0.5, 0.6, 0.7]   # Random erasing 확률
+
+count: 30
+results_dir_base: /results/results/market1501/resnet50/phase3
+early_terminate:
+  type: hyperband
+  max_iter: 12
+  s: 2
+  eta: 3
+  min_iter: 5
+
