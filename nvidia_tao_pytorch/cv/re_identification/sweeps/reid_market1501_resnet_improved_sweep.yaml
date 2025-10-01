@@ -1,0 +1,30 @@
+name: reid_market1501_resnet_improved_sweep
+method: bayes
+metric:
+  name: mAP
+  goal: maximize
+parameters:
+  # 분석 결과 기반 개선된 범위
+  # lr: 0.001~0.003이 최적, 0.0001 제거
+  lr: [1.0e-3, 2.0e-3, 3.0e-3, 5.0e-3]
+  
+  # weight_decay: 극단값(1e-5, 0.001)이 효과적
+  weight_decay: [1.0e-5, 5.0e-5, 1.0e-3]
+  
+  # warmup_factor: 0.1이 최고, 주변값 포함
+  warmup_factor: [0.05, 0.1]
+  
+  # warmup_iters: 0 또는 10이 20보다 나음
+  warmup_iters: [0, 10]
+  
+  # triplet_loss_margin: 0.3~0.4 범위
+  triplet_loss_margin: [0.3, 0.4]
+
+count: 50
+results_dir_base: /results/results/market1501/resnet50/improved
+early_terminate:
+  type: hyperband
+  max_iter: 12
+  s: 2
+  eta: 3
+  min_iter: 5

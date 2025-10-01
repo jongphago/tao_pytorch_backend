@@ -1,0 +1,26 @@
+name: reid_market1501_resnet_phase1_sweep
+method: bayes
+metric:
+  name: mAP
+  goal: maximize
+parameters:
+  # 기존 5개 매개변수 - 범위 정밀화
+  lr: [5.0e-4, 1.0e-3, 2.0e-3, 3.0e-3, 5.0e-3]
+  weight_decay: [1.0e-5, 5.0e-5, 1.0e-4, 5.0e-4, 1.0e-3, 2.0e-3]
+  warmup_factor: [0.05, 0.08, 0.1, 0.12]
+  warmup_iters: [0, 5, 10, 15, 20]
+  triplet_loss_margin: [0.25, 0.3, 0.35, 0.4]
+  
+  # 추가 3개 매개변수
+  batch_size: [32, 64, 96, 128]
+  feat_dim: [128, 256, 512]
+  gamma: [0.1, 0.3, 0.5]
+
+count: 100
+results_dir_base: /results/results/market1501/resnet50/phase1
+early_terminate:
+  type: hyperband
+  max_iter: 12
+  s: 2
+  eta: 3
+  min_iter: 5

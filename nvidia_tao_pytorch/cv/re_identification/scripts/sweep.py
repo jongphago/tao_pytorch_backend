@@ -147,12 +147,33 @@ def main():
     wf_values_raw = _as_list(args.warmup_factor_values) or cfg_params.get("warmup_factor") or ["0.01", "0.05", "0.1"]
     wi_values_raw = _as_list(args.warmup_iters_values) or cfg_params.get("warmup_iters") or [0, 10, 20]
     margin_values_raw = _as_list(args.triplet_margin_values) or cfg_params.get("triplet_loss_margin") or [0.2, 0.3, 0.4]
+    
+    # 추가 매개변수
+    batch_size_values_raw = cfg_params.get("batch_size")
+    feat_dim_values_raw = cfg_params.get("feat_dim")
+    gamma_values_raw = cfg_params.get("gamma")
+    warmup_method_values_raw = cfg_params.get("warmup_method")
+    num_instances_values_raw = cfg_params.get("num_instances")
+    prob_values_raw = cfg_params.get("prob")
+    re_prob_values_raw = cfg_params.get("re_prob")
+    with_center_loss_values_raw = cfg_params.get("with_center_loss")
+    with_flip_feature_values_raw = cfg_params.get("with_flip_feature")
 
     lr_values = [float(v) for v in lr_values_raw]
     wd_values = [float(v) for v in wd_values_raw]
     wf_values = [float(v) for v in wf_values_raw]
     wi_values = [int(float(v)) for v in wi_values_raw]
     margin_values = [float(v) for v in margin_values_raw]
+    
+    batch_size_values = [int(float(v)) for v in batch_size_values_raw] if batch_size_values_raw else None
+    feat_dim_values = [int(float(v)) for v in feat_dim_values_raw] if feat_dim_values_raw else None
+    gamma_values = [float(v) for v in gamma_values_raw] if gamma_values_raw else None
+    warmup_method_values = list(warmup_method_values_raw) if warmup_method_values_raw else None
+    num_instances_values = [int(float(v)) for v in num_instances_values_raw] if num_instances_values_raw else None
+    prob_values = [float(v) for v in prob_values_raw] if prob_values_raw else None
+    re_prob_values = [float(v) for v in re_prob_values_raw] if re_prob_values_raw else None
+    with_center_loss_values = list(with_center_loss_values_raw) if with_center_loss_values_raw else None
+    with_flip_feature_values = list(with_flip_feature_values_raw) if with_flip_feature_values_raw else None
 
     sweep_config = {
         "name": name,
@@ -166,6 +187,26 @@ def main():
             "triplet_loss_margin": {"values": margin_values},
         },
     }
+    
+    # 추가 매개변수를 sweep_config에 포함
+    if batch_size_values:
+        sweep_config["parameters"]["batch_size"] = {"values": batch_size_values}
+    if feat_dim_values:
+        sweep_config["parameters"]["feat_dim"] = {"values": feat_dim_values}
+    if gamma_values:
+        sweep_config["parameters"]["gamma"] = {"values": gamma_values}
+    if warmup_method_values:
+        sweep_config["parameters"]["warmup_method"] = {"values": warmup_method_values}
+    if num_instances_values:
+        sweep_config["parameters"]["num_instances"] = {"values": num_instances_values}
+    if prob_values:
+        sweep_config["parameters"]["prob"] = {"values": prob_values}
+    if re_prob_values:
+        sweep_config["parameters"]["re_prob"] = {"values": re_prob_values}
+    if with_center_loss_values:
+        sweep_config["parameters"]["with_center_loss"] = {"values": with_center_loss_values}
+    if with_flip_feature_values:
+        sweep_config["parameters"]["with_flip_feature"] = {"values": with_flip_feature_values}
     # early_terminate 설정이 있으면 추가
     if sweep_cfg.get("early_terminate", None):
         sweep_config["early_terminate"] = sweep_cfg.get("early_terminate")
@@ -184,6 +225,17 @@ def main():
         warmup_factor = wandb.config.get("warmup_factor")
         warmup_iters = wandb.config.get("warmup_iters")
         triplet_loss_margin = wandb.config.get("triplet_loss_margin")
+        
+        # 추가 매개변수
+        batch_size = wandb.config.get("batch_size")
+        feat_dim = wandb.config.get("feat_dim")
+        gamma = wandb.config.get("gamma")
+        warmup_method = wandb.config.get("warmup_method")
+        num_instances = wandb.config.get("num_instances")
+        prob = wandb.config.get("prob")
+        re_prob = wandb.config.get("re_prob")
+        with_center_loss = wandb.config.get("with_center_loss")
+        with_flip_feature = wandb.config.get("with_flip_feature")
 
         # Derive per-run outputs and consistent W&B run naming
         run_suffix = run.name.replace(" ", "_") if run.name else run.id
@@ -203,6 +255,12 @@ def main():
                 name_parts.append(f"wi_{warmup_iters}")
             if triplet_loss_margin is not None:
                 name_parts.append(f"m_{triplet_loss_margin}")
+            if batch_size is not None:
+                name_parts.append(f"bs_{batch_size}")
+            if feat_dim is not None:
+                name_parts.append(f"fd_{feat_dim}")
+            if gamma is not None:
+                name_parts.append(f"g_{gamma}")
             wandb_name_override = "_".join(name_parts) if name_parts else run_suffix
 
         # Build the child training command
@@ -229,6 +287,27 @@ def main():
             cmd_parts.append(f"train.optim.warmup_iters={warmup_iters}")
         if triplet_loss_margin is not None:
             cmd_parts.append(f"train.optim.triplet_loss_margin={triplet_loss_margin}")
+        
+        # 추가 매개변수 전달
+        if batch_size is not None:
+            cmd_parts.append(f"dataset.batch_size={batch_size}")
+        if feat_dim is not None:
+            cmd_parts.append(f"model.feat_dim={feat_dim}")
+        if gamma is not None:
+            cmd_parts.append(f"train.optim.gamma={gamma}")
+        if warmup_method is not None:
+            cmd_parts.append(f"train.optim.warmup_method={warmup_method}")
+        if num_instances is not None:
+            cmd_parts.append(f"dataset.num_instances={num_instances}")
+        if prob is not None:
+            cmd_parts.append(f"dataset.prob={prob}")
+        if re_prob is not None:
+            cmd_parts.append(f"dataset.re_prob={re_prob}")
+        if with_center_loss is not None:
+            cmd_parts.append(f"model.with_center_loss={with_center_loss}")
+        if with_flip_feature is not None:
+            cmd_parts.append(f"model.with_flip_feature={with_flip_feature}")
+        
         cmd_parts.append(f"wandb.name={wandb_name_override}")
 
         env = os.environ.copy()
@@ -261,6 +340,25 @@ def main():
             * len(wi_values)
             * len(margin_values)
         )
+        # 추가 매개변수가 있으면 total_grid에 반영
+        if batch_size_values:
+            total_grid *= len(batch_size_values)
+        if feat_dim_values:
+            total_grid *= len(feat_dim_values)
+        if gamma_values:
+            total_grid *= len(gamma_values)
+        if warmup_method_values:
+            total_grid *= len(warmup_method_values)
+        if num_instances_values:
+            total_grid *= len(num_instances_values)
+        if prob_values:
+            total_grid *= len(prob_values)
+        if re_prob_values:
+            total_grid *= len(re_prob_values)
+        if with_center_loss_values:
+            total_grid *= len(with_center_loss_values)
+        if with_flip_feature_values:
+            total_grid *= len(with_flip_feature_values)
         cfg_count = None
         if isinstance(sweep_cfg, dict):
             cfg_count = sweep_cfg.get("count", None)

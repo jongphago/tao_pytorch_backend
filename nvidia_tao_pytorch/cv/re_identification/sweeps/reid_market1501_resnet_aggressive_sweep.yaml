@@ -1,0 +1,30 @@
+name: reid_market1501_resnet_aggressive_sweep
+method: bayes
+metric:
+  name: mAP
+  goal: maximize
+parameters:
+  # 기존 5개 - 넓은 범위
+  lr: [5.0e-4, 1.0e-3, 2.0e-3, 3.0e-3, 5.0e-3, 8.0e-3, 1.0e-2]
+  weight_decay: [1.0e-5, 5.0e-5, 1.0e-4, 5.0e-4, 1.0e-3, 2.0e-3, 3.0e-3]
+  warmup_factor: [0.01, 0.05, 0.08, 0.1, 0.12]
+  warmup_iters: [0, 5, 10, 15, 20]
+  triplet_loss_margin: [0.2, 0.25, 0.3, 0.35, 0.4, 0.5]
+  
+  # 추가 7개 매개변수
+  gamma: [0.1, 0.2, 0.3, 0.5]
+  batch_size: [32, 64, 96, 128]
+  feat_dim: [128, 256, 512]
+  warmup_method: ["linear", "cosine"]
+  num_instances: [2, 4, 8]
+  prob: [0.3, 0.5, 0.7]
+  re_prob: [0.3, 0.5, 0.7]
+
+count: 200
+results_dir_base: /results/results/market1501/resnet50/aggressive
+early_terminate:
+  type: hyperband
+  max_iter: 12
+  s: 2
+  eta: 3
+  min_iter: 3
