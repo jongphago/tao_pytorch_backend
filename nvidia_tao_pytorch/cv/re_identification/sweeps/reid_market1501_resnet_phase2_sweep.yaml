@@ -4,25 +4,30 @@ metric:
   name: mAP
   goal: maximize
 parameters:
-  # Phase 1 최적값 기반 좁은 범위 (Phase 1 완료 후 수정 필요)
-  lr: [1.0e-3, 2.0e-3, 3.0e-3]
-  weight_decay: [1.0e-5, 5.0e-5, 1.0e-3]
-  warmup_factor: [0.08, 0.1, 0.12]
-  warmup_iters: [5, 10, 15]
-  triplet_loss_margin: [0.3, 0.35, 0.4]
+  # Phase 1 최적값 기반 (2025-10-01 분석 결과 반영)
+  # 최고 성능: solar-sweep-1 (mAP 0.7044)
+  # lr=0.002, wd=5e-05, wf=0.05, wi=5, tlm=0.35, bs=32, fd=512, gamma=0.5
   
-  # Phase 1에서 찾은 최적 batch_size, feat_dim 고정하고
-  # 고급 매개변수 탐색
+  lr: [2.0e-3]  # 고정: mAP >= 0.6 실험 평균 0.6555로 최고
+  weight_decay: [5.0e-5, 1.0e-4, 1.0e-3]  # 상위 3개 유지
+  warmup_factor: [0.05, 0.08]  # 0.05 추가 (최고 평균 0.6412)
+  warmup_iters: [5]  # 고정: 평균 0.6445로 최고
+  triplet_loss_margin: [0.35, 0.4]  # 0.3 제거, 0.35가 최고
+  
+  # Phase 1 최적값 고정 (중요!)
+  batch_size: [32]  # 고정: 평균 0.6849로 압도적 (vs 64: 0.6287)
+  feat_dim: [512]   # 고정: 평균 0.6323으로 최고
+  gamma: [0.3]      # 고정: 평균 0.6373으로 최고
+  
+  # 새로운 고급 매개변수 탐색 (Phase 2 목표)
   warmup_method: ["linear", "cosine"]
   num_instances: [2, 4, 8]
   prob: [0.3, 0.5, 0.7]
   re_prob: [0.3, 0.5, 0.7]
-  
-  # 선택적 기능
   with_center_loss: [true, false]
   with_flip_feature: [true, false]
 
-count: 80
+count: 60  # 80 → 60 (고정 매개변수 많아서 조정)
 results_dir_base: /results/results/market1501/resnet50/phase2
 early_terminate:
   type: hyperband
