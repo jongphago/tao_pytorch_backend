@@ -1,0 +1,40 @@
+name: reid_market1501_resnet_phase4_paper_aligned_sweep
+method: bayes
+metric:
+  name: mAP
+  goal: maximize
+parameters:
+  # 논문 설정으로 회귀! (Bag of Tricks 논문)
+  # 논문 성능: Rank-1 94.5%, mAP 85.9%
+  # 현재 Phase 3: mAP 70.2% (약 15% 낮음)
+  
+  # 핵심 수정 사항
+  lr: [3.5e-4, 5.0e-4, 7.0e-4]  # 논문: 0.00035 (현재 0.002는 6배 높았음!)
+  weight_decay: [5.0e-4, 1.0e-3]  # 논문 범위로 조정
+  warmup_factor: [0.01, 0.05]  # 논문에서 사용
+  warmup_iters: [10]  # 논문: 10 epochs (현재 5는 너무 짧았음)
+  triplet_loss_margin: [0.3, 0.35]  # 논문: 0.3
+  
+  # Batch 설정 (가장 중요!)
+  batch_size: [64, 96]  # 논문: 64 (P=16, K=4)
+  num_instances: [4]  # 논문: 4 (현재 2는 너무 적었음!)
+  
+  # 모델 설정
+  feat_dim: [256, 512]  # 논문: 256 (현재 512 검증)
+  gamma: [0.1, 0.2]  # 논문: 0.1 (현재 0.5는 너무 높았음!)
+  
+  # 검증된 설정 유지
+  warmup_method: ["linear"]
+  prob: [0.5]
+  re_prob: [0.5]
+  with_flip_feature: [false]
+
+count: 40
+results_dir_base: /results/results/market1501/resnet50/phase4_paper_aligned
+early_terminate:
+  type: hyperband
+  max_iter: 12
+  s: 2
+  eta: 3
+  min_iter: 5
+

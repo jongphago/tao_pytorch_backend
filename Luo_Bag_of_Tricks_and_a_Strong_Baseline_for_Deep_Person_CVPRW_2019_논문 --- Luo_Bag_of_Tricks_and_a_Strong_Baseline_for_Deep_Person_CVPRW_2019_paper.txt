@@ -1,0 +1,1458 @@
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Bag of Tricks and A Strong Baseline for Deep Person Re-identification
+딥 러닝 기반 개인 재식별을 위한 트릭 모음과 강력한 기준 모델
+
+Hao Luo
+
+, Youzhi Gu , Xingyu Liao , Shenqi Lai ,
+Wei Jiang
+Zhejiang University, Chinese Academy of Sciences,
+Xi'an Jiaotong University
+저장대학교, 중국과학원, 시안교통대학교
+
+{haoluocsc,gu_youzhi,jiangwei_zju}@zju.edu.cn
+randall@mail.ustc.edu.cn laishenqi@stu.xjtu.edu.cn
+Abstract 초록
+This paper explores a simple and efficient baseline for person re-identification (ReID). Person reidentification (ReID) with deep neural networks has made progress and achieved high performance in
+recent years. However, many state-of-the-arts methods design complex network structure and
+concatenate multi-branch features. In the literature, some effective training tricks are briefly appeared
+in several papers or source codes. This paper will collect and evaluate these effective training tricks in
+person ReID. By combining these tricks together, the model achieves
+rank-1 and 85.9% mAP
+on Market1501 with only using global features. Our codes and models are available at https://github.c
+om/michuanhaohao/reid-strong-baseline
+본 논문은 개인 재식별(ReID)을 위한 간단하고 효율적인 기준 모델을 탐구합니다. 최근 몇 년간 딥 뉴럴 네트
+워크를 이용한 개인 재식별(ReID)은 발전을 거듭하여 높은 성능을 달성했습니다. 그러나 많은 최첨단 방법들은
+복잡한 네트워크 구조를 설계하고 다중 분기 특징을 연결합니다. 문헌에서 일부 효과적인 훈련 트릭들이 여러 논
+문이나 소스 코드에서 간략하게 언급되었습니다. 본 논문은 개인 ReID에서 이러한 효과적인 훈련 트릭들을 수집
+하고 평가할 것입니다. 이러한 트릭들을 결합함으로써, 모델은 전역 특징만을 사용하여 Market1501에서
+rank-1과
+85.9%
+mAP를
+달성했습니다.
+우리의
+코드와
+모델은
+https://github.com/michuanhaohao/reid-strong-baseline에서 확인할 수 있습니다.
+
+1. Introduction 1. 소개
+Person re-identification (ReID) with deep neural networks has made progress and achieved high performance in
+recent years. However, many state-of-the-arts methods design complex network structure and concatenate
+multibranch features. In the literature, some effective training tricks or refinements are briefly appeared in several
+papers or source codes. This paper will collect and evaluate such effective training tricks in person ReID. With
+involved in al1 training tricks, ResNet50 reaches
+rank-1 accuracy and
+on Market1501 [24]. It is
+worth mentioning that it achieves such surprising performance with global features of the model.
+딥 뉴럴 네트워크를 이용한 인물 재식별(ReID)은 최근 몇 년간 발전을 거듭하여 높은 성능을 달성했습니다. 그러나 많은 최첨단
+방법들은 복잡한 네트워크 구조를 설계하고 다중 분기 특징들을 연결합니다. 문헌에서 일부 효과적인 훈련 트릭이나 개선 사항들
+이 여러 논문이나 소스 코드에서 간략하게 언급되었습니다. 본 논문은 인물 ReID에서 이러한 효과적인 훈련 트릭들을 수집하고
+평가할 것입니다. 모든 훈련 트릭을 적용함으로써 ResNet50은 Market1501 [24]에서
+rank-1 정확도와
+에 도달했습니다.值得一提的是, 이는 모델의 전역 특징만으로도 이러한 놀라운 성능을 달성했다는 점에서 주목할
+만합니다.
+
+For comparison, we surveyed articles published at ECCV2018 and CVPR2018 of the past year. As shown in Fig. 1 ,
+most of previous works were expanded on poor baselines. On Market1501, only two baselines in 23 baselines
+surpassed
+rank-1 accuracy. The rank-1 accuracies of four baselines even lower than
+. On DukeMTMCreID, all baselines did not surpass
+rank-1 accuracy or
+mAP . We think a strong baseline is very important
+to promote the development of research. Therefore, we modified
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 1 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+비교를 위해 지난 해 ECCV2018과 CVPR2018에 발표된 논문들을 조사했습니다. 그림 1에서 보듯이, 이전의 대부분 연구들은
+취약한 기준 모델을 기반으로 확장되었습니다. Market1501에서는 23개 기준 모델 중 단 두 개만이
+rank-1 정확도를 초
+과했습니다. 네 개 기준 모델의 rank-1 정확도는
+보다 낮았습니다. DukeMTMC-reID에서는 모든 기준 모델이
+rank-1 정확도나
+mAP를 초과하지 못했습니다. 우리는 강력한 기준 모델이 연구 발전을 촉진하는 데 매우 중요하다고 생
+각합니다. 따라서 우리는 수정했습니다
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 2 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Figure 1: Figure 1. The performance of different baselines on Market1501 and DukeMTMC-reID datasets. We
+compare our strong baseline with other baselines published in CVPR2018 and ECCV2018.
+그림 1: Market1501 및 DukeMTMC-reID 데이터셋에서의 다른 기준 모델들의 성능. 우리는 CVPR2018 및 ECCV2018에
+발표된 다른 기준 모델들과 우리의 강력한 기준 모델을 비교했습니다.
+
+the standard baseline with some training tricks to acquire a strong baseline. The code of our strong baseline has
+been open sourced.
+표준 기준 모델에 몇 가지 훈련 트릭을 적용하여 강력한 기준 모델을 구축했습니다. 우리의 강력한 기준 모델 코드는 오픈 소스로
+공개되었습니다.
+
+In addition, we also found that some works were unfairly compared with other state-of-the-arts methods.
+Specifically, the improvements were mainly from training tricks rather than methods themselves. But the training
+tricks
+또한, 일부 연구들이 다른 최첨단 방법들과 불공정하게 비교되었다는 점도 발견했습니다. 구체적으로, 개선은 주로 방법 자체보
+다는 훈련 기술에서 비롯되었습니다. 하지만 훈련 기술들은
+were understated in the paper so that readers ignored them. It would make the effectiveness of the method
+exaggerated. We suggest that reviewers need to take into account these tricks when commenting academic papers.
+논문에서 이 트릭들이 과소평가되어 독자들이 이를 무시하게 되었습니다. 이는 방법의 효과성이 과장되게 만드는 결과를 낳았습
+니다. 우리는 검토자들이 학술 논문을 평가할 때 이러한 트릭들을 고려해야 한다고 제안합니다.
+
+Apart from aforementioned reasons, another consideration is that the industry prefers to simple and effective
+models rather than concatenating lots of local features in the inference stage. In pursuit of high accuracy,
+researchers in the academic always combine several local features or utilize the semantic information from pose
+estimation or segmentation models. Such methods bring too much extra consumption. Large features also greatly
+reduce the speed of retrieval process. Thus, we hope to use some tricks to improve the ability of the ReID model
+and only use global features to achieve high performance. The purposes of this paper are summarized as follow:
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 3 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+앞서 언급한 이유들 외에, 또 다른 고려사항은 업계가 추론 단계에서 많은 로컬 특징을 연결하는 것보다 간단하고 효과적인 모델
+을 선호한다는 점입니다. 높은 정확도를 추구하는 학계 연구자들은 항상 여러 로컬 특징을 결합하거나 포즈 추정 또는 세그멘테
+이션 모델의 시맨틱 정보를 활용합니다. 이러한 방법들은 너무 많은 추가적인 소비를 가져옵니다. 큰 특징들은 또한 검색 과정의
+속도를 크게 저하시킵니다. 따라서 우리는 몇 가지 트릭을 사용하여 ReID 모델의 능력을 향상시키고 오직 글로벌 특징만을 사용
+하여 높은 성능을 달성하고자 합니다. 본 논문의 목적은 다음과 같이 요약됩니다:
+
+We surveyed many works published on top conferences and found most of them were expanded on poor baselines.
+우리는 최상위 컨퍼런스에 발표된 많은 연구를 조사했으며, 대부분이 취약한 기준 모델(baseline)을 기반으로 확장되었음을 발
+견했습니다.
+For the academia, we hope to provide a strong baseline for researchers to achieve higher accuracies in person
+ReID.
+학계를 위해, 연구자들이 person ReID에서 더 높은 정확도를 달성할 수 있도록 강력한 기준 모델(baseline)을 제공하고자 합
+니다.
+For the community, we hope to give reviewers some references that what tricks will affect the performance of the
+ReID model. We suggest that when comparing the performance of the different methods, reviewers need to take
+these tricks into account.
+커뮤니티를 위해, 우리는 리뷰어들에게 어떤 트릭이 ReID 모델의 성능에 영향을 미칠지에 대한 참고 자료를 제공하고자 합니다.
+우리는 서로 다른 방법들의 성능을 비교할 때, 리뷰어들이 이러한 트릭들을 고려해야 한다고 제안합니다.
+For the industry, we hope to provide some effective tricks to acquire better models without too much extra
+consumption.
+산업계에서는 너무 많은 추가 비용 없이 더 나은 모델을 확보할 수 있는 몇 가지 효과적인 트릭을 제공하고자 합니다.
+
+Fortunately, a lot of effective training tricks have been present in some papers or open-sourced projects. We collect
+many tricks and evaluate each of them on ReID datasets. After a lot of experiments, we choose six tricks to
+introduce in this paper. Some of them were designed or modified by us. We add these tricks into a widely used
+baseline to get our modified baseline, which achieves
+rank- 1 and
+mAP on Market1501. Moreover, we
+found different works choose different image sizes and numbers of batch size, as a supplement, we also explore
+their impacts on model performance. In summary, the contributions of this paper are concluded as follow:
+다행히도, 많은 효과적인 훈련 트릭들이 일부 논문이나 오픈소스 프로젝트에 이미 존재합니다. 우리는 많은 트릭들을 수집하고
+ReID 데이터셋에서 각각을 평가했습니다. 수많은 실험 후, 이 논문에서 소개할 여섯 가지 트릭을 선택했습니다. 그중 일부는 우
+리가 설계하거나 수정한 것입니다. 우리는 이러한 트릭들을 널리 사용되는 기준 모델에 추가하여 수정된 기준 모델을 얻었으며,
+이 모델은 Market1501에서
+rank-1과
+mAP를 달성했습니다. 더불어, 다른 연구들이 서로 다른 이미지 크기와
+배치 크기를 선택한다는 것을 발견했으며, 보충으로서 우리는 또한 이들이 모델 성능에 미치는 영향을 탐구했습니다. 요약하자
+면, 이 논문의 기여는 다음과 같이 결론지을 수 있습니다:
+
+We collect some effective training tricks for person ReID. Among them, we design a new neck structure named as
+BNNeck. In addition, we evaluate the improvements from each trick on two widely used datasets.
+저희는 person ReID를 위한 효과적인 트레이닝 트릭들을 수집했습니다. 그중에서 저희는 BNNeck이라는 새로운 넥 구조를
+설계했습니다. 또한, 저희는 각 트릭이 널리 사용되는 두 데이터셋에서 가져오는 개선 효과를 평가했습니다.
+We provide a strong ReID baseline, which achieves
+우리는 Market1501에서
+
+과
+
+and
+
+on Market1501. It is worth
+
+을 달성하는 강력한 ReID 기준 모델을 제공합니다. 이는 가치 있는
+
+mentioned that the results are obtained with global features provided by ResNet50 backbone. To our best
+knowledge, it is the best performance acquired by global features in person ReID.
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 4 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+ResNet50 백본에서 제공하는 전역 특징으로 얻은 결과라고 언급했습니다. 우리가 아는 한, 이는 person ReID에서 전역 특징
+으로 얻은 최고의 성능입니다.
+As a supplement, we evaluate the influences of the image size and the number of batch size on the performance of
+ReID models.
+보충으로, ReID 모델의 성능에 대한 이미지 크기와 배치 크기 수의 영향을 평가합니다.
+
+2. Standard Baseline 2. 표준 기준 모델
+We follow a widely used open-source as our standard baseline. The backbone of the standard baseline is
+ResNet50 [5]. During the training stage, the pipeline includes following steps:
+우리는 널리 사용되는 오픈 소스 을 표준 기준 모델로 사용합니다. 표준 기준 모델의 백본은 ResNet50 [5]입니다. 훈련 단계
+에서 파이프라인은 다음 단계들을 포함합니다:
+
+We initialize the ResNet50 with pre-trained parameters on ImageNet and change the dimension of the fully
+connected layer to
+denotes the number of identities in the training dataset.
+우리는 ImageNet에서 사전 학습된 파라미터로 ResNet50을 초기화하고, 완전 연결 계층의 차원을
+기서
+은 학습 데이터셋에 있는 식별자(identity)의 수를 나타냅니다.
+
+으로 변경합니다. 여
+
+We randomly sample identities and images of per person to constitute a training batch. Finally the batch size
+equals to
+. In this paper, we set
+and
+.
+우리는 훈련 배치를 구성하기 위해 무작위로 개의 신원과 사람당 개의 이미지를 샘플링합니다. 최종적으로 배치 크기는
+이 됩니다. 본 논문에서는 우리는
+과
+로 설정합니다.
+We resize each image into
+pixels and pad the resized image 10 pixels with zero values. Then randomly
+crop it into a
+rectangular image.
+우리는 각 이미지를
+픽셀로 크기를 조정하고, 조정된 이미지를 0 값으로 10 픽셀 패딩합니다. 그런 다음 이를
+크기의 직사각형 이미지로 무작위로 자릅니다.
+Each image is flipped horizontally with 0.5 probability.
+각 이미지는 0.5 확률로 수평으로 뒤집힙니다.
+Each image is decoded into 32-bit floating point raw pixel values in
+. Then we normalize RGB channels by
+subtracting
+and dividing by
+, respectively.
+각 이미지는
+
+에서 32비트 부동 소수점 원시 픽셀 값으로 디코딩됩니다. 그런 다음 각각
+으로 나누어 RGB 채널을 정규화합니다.
+
+The model outputs ReID features
+모델은 ReID 특징
+
+과 ID 예측 로짓
+
+을 빼고
+
+and ID prediction logits .
+을 출력합니다.
+
+ReID features is used to calculate triplet loss [6]. ID prediction logits
+The margin of triplet loss is set to be 0.3 .
+
+is used to calculated cross entropy loss.
+
+ReID 특징 은 삼중항 손실(triplet loss) [6]을 계산하는 데 사용됩니다. ID 예측 로짓
+데 사용됩니다. 삼중항 손실의 마진 은 0.3으로 설정됩니다.
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+은 교차 엔트로피 손실을 계산하는
+
+Page 5 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Adam method is adopted to optimize the model. The initial learning rate is set to be 0.00035 and is decreased by
+0.1 at the 40th epoch and 70th epoch respectively. Totally there are 120 training epochs.
+Adam 방법을 사용하여 모델을 최적화합니다. 초기 학습률은 0.00035로 설정되며, 각각 40번째 에포크와 70번째 에포크에서
+0.1씩 감소합니다. 총 120개의 학습 에포크가 있습니다.
+
+3. Training Tricks 3. 학습 트릭
+This section will introduce some effective training tricks in person ReID. Most of such tricks can be expanded on
+the standard baseline without changing the model architecture. The Fig. 2 (b) shows training strategies and the
+model architecture appeared in this section.
+이 섹션에서는 개체 재식별(ReID)을 위한 몇 가지 효과적인 훈련 트릭을 소개합니다. 이러한 트릭 대부분은 모델 아키텍처를 변
+경하지 않고도 표준 기준 모델에 확장하여 적용할 수 있습니다. 그림 2(b)는 이 섹션에 등장하는 훈련 전략과 모델 아키텍처를 보
+여줍니다.
+
+Figure 2: Figure 2. The pipelines of the standard baseline and our modified baseline.
+그림 2: 표준 기준 모델과 우리가 수정한 기준 모델의 파이프라인.
+
+3.1. Warmup Learning Rate
+3.1. 웜업 학습률
+Learning rate has a great impact for the performance of a ReID model. Standard baseline is initially trained with a
+large and constant learning rate. In [2], a warmup strategy is applied to bootstrap the network for better
+performance. In practice, As shown in Fig. 3, we spent 10 epochs linearly increasing the learning rate from
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 6 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+to
+. Then, the learning rate is decayed to
+epoch respectively. The learning rate
+at epoch is compute as;
+
+and
+
+10/5/25, 5:26 PM
+
+at 40th epoch and 70th
+
+학습률은 ReID 모델의 성능에 큰 영향을 미칩니다. 표준 기준 모델은 처음에 크고 일정한 학습률로 훈련됩니다. [2]에서는 더
+나은 성능을 위해 네트워크를 부트스트랩하기 위해 웜업 전략이 적용됩니다. 실제로, 그림 3에서 보듯이, 우리는 10 에포크 동안
+학습률을
+에서
+까지 선형적으로 증가시키는 데 시간을 보냈습니다. 그런 다음, 학습률은 각각 40번째
+에포크와 70번째 에포크에서
+와
+으로 감소됩니다. 에포크 에서의 학습률
+은 다음과 같이 계산
+됩니다;
+
+3.2. Random Erasing Augmentation
+3.2. 랜덤 지우기 데이터 증강
+In person ReID, persons in the images are sometimes occluded by other objects. To address the occlusion problem
+and improve the generalization ability of ReID models, Zhong et al. [27] proposed a new data augmentation
+approach named as Random Erasing Augmentation (REA). In practice, for an image in a mini-batch, the
+probability of it undergoing Random Erasing is , and the probability of it being kept unchanged is
+. Then,
+REA randomly selects a rectangle region with size (
+) in image , and erases its pixels with random
+values. Assuming
+인물 재식별(ReID)에서 이미지 속 인물은 때때로 다른 객체에 의해 가려집니다. 가려짐 문제를 해결하고 ReID 모델의 일반화
+능력을 향상시키기 위해 Zhong 등 [27]은 Random Erasing Augmentation(REA)이라는 새로운 데이터 증강 접근법을 제
+안했습니다. 실제로, 미니 배치의 이미지 에 대해 Random Erasing을 적용할 확률은 이고, 변경되지 않고 유지될 확률은
+입니다. 그런 다음 REA는 이미지 에서 크기가 (
+)인 직사각형 영역 을 무작위로 선택하고, 해당 픽셀을 무
+작위 값으로 지웁니다. 가정하면
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 7 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Figure 3: Figure 3. Comparison of learning rate schedules. With warmup strategy, the learning rate is linearly
+increased in the first 10 epochs.
+그림 3: 학습률 스케줄 비교. 웜업 전략을 사용하면, 처음 10 에포크 동안 학습률이 선형적으로 증가합니다.
+
+the area of image and region are
+and
+respectively, we denote
+as the area
+ratio of erasing rectangle region. In addition, the aspect ratio of region is randomly initialized between and
+. To determine a unique region, REA randomly initializes a point
+. If
+and
+, we set the region,
+, as the selected rectangle region. Otherwise we repeat the
+above process until an appropriate is selected. With the selected erasing region , each pixel in is assigned to
+the mean
+이미지 영역 과 영역 은 각각
+과
+이며, 우리는
+을 지우기 직사각형 영역의 면적
+비율로 표기합니다. 또한, 영역 의 종횡비는 과 사이에서 무작위로 초기화됩니다. 고유한 영역을 결정하기 위해, REA
+는점
+을 무작위로 초기화합니다. 만약
+와
+이라면, 우리는 영역
+을 선택된 직사각형 영역으로 설정합니다. 그렇지 않으면 적절한 이 선택될 때까지 위
+과정을 반복합니다. 선택된 지우기 영역 을 사용하여, 내의 각 픽셀은 평균값에 할당됩니다
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 8 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Figure 4: Figure 4. Sampled examples of random erasing augmentation. The first row shows five original training
+images. The processed images are presented in the second low.
+그림 4: 무작위 지우기 데이터 증강의 샘플 예시. 첫 번째 행은 다섯 개의 원본 훈련 이미지를 보여줍니다. 처리된 이미지는 두 번
+째 행에 제시됩니다.
+
+value of image , respectively.
+이미지
+
+의 값, 각각.
+
+In this study, we set hyper-parameters to
+examples are shown in Fig. 4.
+본 연구에서는 하이퍼 파라미터를 각각
+그림 4에 나와 있습니다.
+
+, respectively. Some
+
+로 설정했습니다. 몇 가지 예시는
+
+3.3. Label Smoothing 3.3. 레이블 스무딩
+ID Embedding (IDE) [25] network is a basic baseline in person ReID. The last layer of IDE, which outputs the ID
+prediction logits of images, is a fully-connected layer with a hidden size being equal to numbers of persons .
+Given an image, we denote as truth ID label and as ID prediction logits of class . The cross entropy loss is
+computed as:
+ID Embedding (IDE) [25] 네트워크는 person ReID의 기본적인 기준 모델입니다. IDE의 마지막 레이어는 이미지의 ID 예
+측 로짓을 출력하며, 이는 은닉 크기가 사람 수 와 동일한 완전 연결 레이어입니다. 이미지가 주어졌을 때, 우리는 을 실제
+ID 레이블로, 을 클래스 의 ID 예측 로짓으로 나타냅니다. 교차 엔트로피 손실은 다음과 같이 계산됩니다:
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 9 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Because the category of the classification is determined by the person ID, we call such loss function as ID loss in
+this paper.
+분류의 카테고리가 사람 ID에 의해 결정되기 때문에, 본 논문에서는 이러한 손실 함수를 ID 손실이라고 부릅니다.
+
+Nevertheless, person ReID can be regard as one-shot learning task because person IDs of the testing set have not
+appeared in the training set. So it is pretty important to prevent the ReID model from overfitting training IDs.
+Label smoothing (LS) proposed in [17] is a widely used method to prevent overfitting for a classification task. It
+changes the construction of to:
+그럼에도 불구하고, 테스트 세트의 사람 ID는 훈련 세트에 나타나지 않았기 때문에 사람 ReID는 원샷 학습 작업으로 간주될 수
+있습니다. 따라서 ReID 모델이 훈련 ID에 과적합되는 것을 방지하는 것이 매우 중요합니다. [17]에서 제안된 레이블 스무딩
+(LS)은 분류 작업에서 과적합을 방지하기 위해 널리 사용되는 방법입니다. 이는 의 구성을 다음과 같이 변경합니다:
+
+where is a small constant to encourage the model to be less confident on the training set. In this study, is set to
+be 0.1 . When the training set is not very large, LS can significantly improve the performance of the model.
+여기서 은 훈련 세트에서 모델이 덜 확신하도록 장려하는 작은 상수입니다. 본 연구에서는 을 0.1로 설정했습니다. 훈련 세트
+가 매우 크지 않을 때, LS는 모델의 성능을 크게 향상시킬 수 있습니다.
+
+3.4. Last Stride 3.4. 마지막 스트라이드
+Higher spatial resolution always enriches the granularity of feature. In [16], Sun et al. removed the last spatial
+downsampling operation in the backbone network to increase the size of the feature map. For convenience, we
+denote the last spatial down-sampling operation in the backbone network as last stride. The last stride of ResNet50
+is set to be 2. When fed into a image of
+size, the backbone of ResNet50 outputs a feature map with the
+spatial size of
+. If change last stride from 2 to 1 , we can get a feature map with higher spatial size (
+).
+This manipulation only increases very light computation cost and does not involve extra training parameters.
+However, higher spatial resolution brings significant improvement.
+더 높은 공간 해상도는 항상 특징의 세분성을 풍부하게 합니다. [16]에서 Sun 등은 백본 네트워크에서 마지막 공간 다운샘플링
+연산을 제거하여 특징 맵의 크기를 증가시켰습니다. 편의상, 백본 네트워크의 마지막 공간 다운샘플링 연산을 last stride로 표기
+합니다. ResNet50의 last stride는 2로 설정됩니다.
+크기의 이미지를 입력하면 ResNet50의 백본은
+공간
+크기를 가진 특징 맵을 출력합니다. last stride를 2에서 1로 변경하면 더 높은 공간 크기(
+)를 가진 특징 맵을 얻을 수 있
+습니다. 이 조작은 매우 적은 계산 비용만 증가시킬 뿐이며 추가적인 학습 파라미터를 포함하지 않습니다. 그러나 더 높은 공간
+해상도는 상당한 개선을 가져옵니다.
+
+3.5. BNNeck
+Most of works combined ID loss and triplet loss together to train ReID models. As shown in Fig. 5(a), in the
+standard baseline, ID loss and triplet loss constrain the same feature . However, the targets of these two losses are
+inconsistent in the embedding space.
+대부분의 연구에서는 ReID 모델을 훈련하기 위해 ID 손실과 트리플릿 손실을 함께 결합했습니다. 그림 5(a)에서 보듯이, 표준
+기준선에서 ID 손실과 트리플릿 손실은 동일한 특징 을 제약합니다. 그러나 이 두 손실의 목표는 임베딩 공간에서 일관성이 없
+습니다.
+
+As shown in Fig. 6(a), ID loss constructs several hyperplanes to separate the embedding space into different
+subspaces. The features of each class are distributed in different subspaces. In this case, cosine distance is more
+suitable than Euclidean distance for the model optimized by ID loss in the inference stage. On the other hand, as
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 10 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+shown in 6(b),
+그림 6(a)에 나타난 바와 같이, ID 손실은 임베딩 공간을 여러 부분 공간으로 분리하기 위해 여러 초평면을 구성합니다. 각 클래
+스의 특징은 다른 부분 공간에 분포합니다. 이 경우, 추론 단계에서 ID 손실에 의해 최적화된 모델에 대해 유클리드 거리보다 코
+사인 거리가 더 적합합니다. 반면, 그림 6(b)에 나타난 바와 같이,
+
+Figure 5: Figure 5. Comparison between standard neck and our designed BNNeck.
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 11 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+그림 5: 표준 neck과 우리가 설계한 BNNeck의 비교.
+
+(b) Our designed BNNeck. In the inference stage, we choose
+(b) 우리가 설계한 BNNeck. 추론 단계에서는 BN 레이어 다음에
+
+following the BN layer to do the retrieval.
+를 선택하여 검색을 수행합니다.
+
+Figure 6: Figure 6. Two-dimensional visualization of sample distribution in the embedding space supervised by (a)
+ID Loss, (b) Triplet Loss, (c) ID + triplet loss and (d) ID + triplet loss + BNNeck. Points of different colors
+represent embedding features from different classes. The yellow dotted lines stand for the supposed classification
+hyperplanes.
+그림 6: (a) ID 손실, (b) 트리플릿 손실, (c) ID + 트리플릿 손실 및 (d) ID + 트리플릿 손실 + BNNeck에 의해 감독되는 임베
+딩 공간에서의 샘플 분포 2차원 시각화. 다른 색상의 점들은 다른 클래스에서 온 임베딩 특징을 나타냅니다. 노란색 점선은 가상
+의 분류 초평면을 나타냅니다.
+
+triplet loss enhances the intra-class compactness and interclass separability in the Euclidean space. Because triplet
+loss can not provide globally optimal constraint, inter-class distance sometimes is smaller than intra-class
+distance. A widely used method is to combine ID loss and triplet loss to train the model together. This approach let
+the model learn more discriminative features. Nevertheless, for image pairs in the embedding space, ID loss
+mainly optimizes the cosine distances while triplet loss focuses on the Euclidean distances. If we use these two
+losses to simultaneously optimize a feature vector, their goals may be inconsistent. In the training process, a
+possible phenomenon is that one loss is reduced, while the other loss is oscillating or even increased.
+트리플렛 손실은 유클리드 공간에서 클래스 내부의 응집성과 클래스 간 분리성을 향상시킵니다. 트리플렛 손실은 전역적으로 최
+적의 제약을 제공할 수 없기 때문에, 클래스 간 거리가 때때로 클래스 내부 거리보다 작아질 수 있습니다. 널리 사용되는 방법은
+ID 손실과 트리플렛 손실을 결합하여 모델을 함께 훈련하는 것입니다. 이 접근 방식은 모델이 더 판별적인 특징을 학습하도록 합
+니다. 그럼에도 불구하고, 임베딩 공간의 이미지 쌍에 대해 ID 손실은 주로 코사인 거리를 최적화하는 반면 트리플렛 손실은 유
+클리드 거리에 집중합니다. 이 두 손실을 동시에 특징 벡터를 최적화하는 데 사용하면, 그들의 목표가 일치하지 않을 수 있습니
+다. 훈련 과정에서 발생할 수 있는 현상은 한 손실은 감소하는 반면 다른 손실은 진동하거나 심지어 증가하는 것입니다.
+
+To overcome the aforementioned problem, we design a structure named as BNNeck shown in Fig. 5(b). BNNeck
+only adds a batch normalization (BN) layer after features (and before classifier FC layers). The feature before the
+BN layer is denoted as . We let pass through a BN layer to acquire the normalized feature . In the training
+stage, and are used to compute triplet loss and ID loss, respectively. Normalization balances each dimension
+of . The features are gaussianly distributed near the surface of the hypersphere. This distribution makes the ID
+loss easier to converge. In addition, BNNeck reduces the constraint of the ID loss on . Less constraint from ID
+loss leads to triplet loss easier to converge at the same time. Thirdly, normalization keeps the compact distribution
+of features that belong to one same person.
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 12 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+앞서 언급한 문제를 해결하기 위해, 우리는 그림 5(b)에 나타난 BNNeck이라는 구조를 설계했습니다. BNNeck은 특징
+(feature) 뒤(그리고 분류기 FC 층 앞)에 배치 정규화(BN) 층만 추가합니다. BN 층 이전의 특징을 라고 표기합니다. 우리는
+이 BN 층을 통과하도록 하여 정규화된 특징 을 얻습니다. 훈련 단계에서는 과 이 각각 삼중항 손실(triplet loss)과
+ID 손실을 계산하는 데 사용됩니다. 정규화는 의 각 차원을 균형 있게 만듭니다. 특징들은 초구(hypersphere) 표면 근처에
+가우시안 분포를 따릅니다. 이 분포는 ID 손실이 더 쉽게 수렴하도록 만듭니다. 또한, BNNeck은 에 대한 ID 손실의 제약을
+줄입니다. ID 손실로부터의 제약이 줄어들면 삼중항 손실이 동시에 더 쉽게 수렴하게 됩니다. 셋째, 정규화는 동일한 인물에 속
+하는 특징들의 컴팩트한 분포를 유지합니다.
+
+Because the hypersphere is almost symmetric about the origin of the coordinate axis, another trick of BNNeck is
+removing the bias of classifier FC layer. It constrains the classification hyperplanes to pass through the origin of
+the coordinate axis. We initialize the FC layer with Kaiming initialization proposed in [4].
+초구는 좌표축의 원점에 대해 거의 대칭이므로, BNNeck의 또 다른 트릭은 분류기 FC 레이어의 편향을 제거하는 것입니다. 이
+는 분류 초평면이 좌표축의 원점을 통과하도록 제약합니다. 우리는 [4]에서 제안된 Kaiming 초기화를 사용하여 FC 레이어를
+초기화합니다.
+
+In the inference stage, we choose
+추론 단계에서, 우리는
+
+to do the person
+
+을(를) 선택하여 사람을 수행합니다
+
+ReID task. Cosine distance metric can achieve better performance than Euclidean distance metric. Experimental
+results in Table. 1 show that BNNeck can improve performance of the ReID model by a large margin.
+ReID 작업. 코사인 거리 메트릭은 유클리드 거리 메트릭보다 더 나은 성능을 달성할 수 있습니다. 표 1의 실험 결과는 BNNeck
+이 ReID 모델의 성능을 큰 폭으로 향상시킬 수 있음을 보여줍니다.
+
+3.6. Center Loss 3.6. 센터 손실
+Triplet loss is computed as:
+Triplet loss는 다음과 같이 계산됩니다:
+
+where
+and
+are feature distances of positive pair and negative pair. is the margin of triplet loss, and
+equals to
+. In this paper, is set to 0.3 . However, triplet loss only considers the difference between
+and
+and ignores the absolute values of them. For instance, when
+, the triplet loss is 0.1 . For
+another case, when
+, the triplet loss also is 0.1 . Triplet loss is determined by two person IDs
+sampled randomly. It is difficult to ensure that
+in the whole training dataset.
+여기서
+과
+은 각각 양성 쌍과 음성 쌍의 특징 거리입니다. 은 삼중항 손실의 마진이며,
+은
+과 같습니다.
+본 논문에서는 을 0.3으로 설정했습니다. 그러나 삼중항 손실은
+과
+의 차이만 고려하고 이들의 절대값은 무시합니다.
+예를 들어,
+일 때 삼중항 손실은 0.1입니다. 다른 경우,
+일 때 삼중항 손실 역시 0.1
+입니다. 삼중항 손실은 무작위로 샘플링된 두 개의 개인 ID에 의해 결정됩니다. 전체 훈련 데이터셋에서
+을 보장하기
+는 어렵습니다.
+
+Center loss [20], which simultaneously learns a center for deep features of each class and penalizes the distances
+between the deep features and their corresponding class centers, makes up for the drawbacks of the triplet loss.
+The center loss function is formulated as:
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 13 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+센터 손실[20]은 각 클래스의 딥 피처에 대한 중심을 동시에 학습하고 딥 피처와 해당 클래스 중심 간의 거리를 패널티로 부여하
+여, 트리플렛 손실의 단점을 보완합니다. 센터 손실 함수는 다음과 같이 공식화됩니다:
+
+where is the label of the th image in a mini-batch.
+denotes the th class center of deep features. is the
+number of batch size. The formulation effectively characterizes the intra-class variations. Minimizing center loss
+increases intra-class compactness. Our model totally includes three losses as follow:
+여기서 은 미니 배치에서 번째 이미지의 레이블입니다.
+은 딥 피처의 번째 클래스 중심을 나타냅니다. 은 배치 크
+기의 수입니다. 이 공식은 클래스 내 변동성을 효과적으로 특성화합니다. 중심 손실을 최소화하면 클래스 내 응집성이 증가합니
+다. 우리 모델은 다음과 같이 세 가지 손실을 완전히 포함합니다:
+
+is the balanced weight of center loss. In our experiments,
+는 중심 손실의 균형 가중치입니다. 우리의 실험에서
+
+is set to be 0.0005 .
+
+는 0.0005로 설정되었습니다.
+
+4. Experimental Results 4. 실험 결과
+In this section, we will evaluate our models on Market1501 and DukeMTMC-reID [11] datasets. The Rank1
+accuracy and mean Average Precision (mAP) are reported as evaluation metrics. We add tricks on the standard
+baseline successively and do not change any training settings. The results of ablation studies present the
+performance boost from each trick. In order to prevent being misled by overfitting, we also show the results of
+cross-domain experiments.
+이 섹션에서는 Market1501 및 DukeMTMC-reID [11] 데이터셋에서 우리 모델을 평가할 것입니다. Rank1 정확도와 평균 평
+균 정밀도(mAP)를 평가 지표로 보고합니다. 표준 기준 모델에 트릭을 순차적으로 추가하되, 어떠한 훈련 설정도 변경하지 않습
+니다. 제거 연구 결과는 각 트릭으로 인한 성능 향상을 보여줍니다. 과적합으로 인해 오해하는 것을 방지하기 위해, 우리는 크로
+스 도메인 실험 결과도 제시합니다.
+
+4.1. Influences of Each Trick (Same domain)
+4.1. 각 트릭의 영향 (동일 도메인)
+Market1501
+Model
+
+모델
+
+Baseline-S 베이스라인-S
++warmup
++REA
++LS
++stride=1
++BNNeck
++center loss +센터 손실
+
+DukeMTMC
+mAP
+
+87.7
+88.7
+91.3
+91.4
+92.0
+94.1
+94.5
+
+mAP
+
+74.0
+75.2
+79.3
+80.3
+81.7
+85.7
+85.9
+
+79.7
+80.6
+81.5
+82.4
+82.6
+86.2
+86.4
+
+63.7
+65.1
+68.3
+69.3
+70.6
+75.9
+76.4
+
+Table 1: Table 1. The performance of different models is evaluated on Market1501 and DukeMTMC-reID datasets.
+Baseline-S stands for the standard baseline introduced in section 2.
+표 1: 표 1. 다양한 모델의 성능이 Market1501 및 DukeMTMC-reID 데이터셋에서 평가되었습니다. Baseline-S는 2절에서
+소개된 표준 기준 모델을 나타냅니다.
+
+The standard baseline introduced in section 2 achieves
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+and
+
+rank-1 accuracies on Market1501 and
+Page 14 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+DukeMTMC-reID, respectively. The performance of standard baseline is similar with most of baselines reported in
+other papers. Then, we add warmup strategy, random erasing augmentation, label smoothing, stride change,
+BNNeck and center loss to the model training process, one by one. Our designed BNNeck boosts more
+performance than other tricks, especially on DukeMTMC-reID. Finally, these tricks make baseline acquire
+rank-1 accuracy and
+mAP on Market1501. On DukeMTMC-reID, it reaches
+rank-1 accuracy and
+. In other works, these training tricks boost the performance of the standard baseline by more than
+. In addition, to get such improvement, we only involve an extra BN layer and do not increase training
+time.
+섹션 2에서 소개된 표준 기준 모델은 각각 Market1501과 DukeMTMC-reID에서
+과
+의 rank-1 정확도를 달
+성합니다. 표준 기준 모델의 성능은 다른 논문에서 보고된 대부분의 기준 모델과 유사합니다. 그 후, 우리는 모델 훈련 과정에 웜
+업 전략, 랜덤 지우기 증강, 레이블 스무딩, 스트라이드 변경, BNNeck 및 센터 손실을 하나씩 추가합니다. 우리가 설계한
+BNNeck은 다른 트릭보다 더 많은 성능 향상을 가져오며, 특히 DukeMTMC-reID에서 두드러집니다. 최종적으로, 이러한 트
+릭들은 기준 모델이 Market1501에서
+rank-1 정확도와
+mAP를 얻게 만듭니다. DukeMTMC-reID에서는
+rank-1 정확도와
+에 도달합니다. 다른 연구들에서, 이러한 훈련 트릭들은 표준 기준 모델의 성능을
+이상 향상시킵니다. 게다가, 이러한 개선을 얻기 위해 우리는 추가 BN 레이어만 포함시켰을 뿐, 훈련 시간을 증가시
+키지 않았습니다.
+
+4.2. Analysis of BNNeck
+4.2. BNNeck 분석
+In this section, we evaluate the performance of two different features ( and ) with Euclidean distance metric
+and cosine distance metric. All models are trained without center loss in Table. 2. We observe that cosine distance
+metric performs better than Euclidean distance metric for . Because ID loss directly constrains the features
+followed
+이 섹션에서는 유클리드 거리 메트릭과 코사인 거리 메트릭을 사용하여 두 가지 다른 특징( 및 )의 성능을 평가합니다. 표 2
+의 모든 모델은 센터 손실 없이 훈련되었습니다. 우리는 에 대해 코사인 거리 메트릭이 유클리드 거리 메트릭보다 더 나은 성
+능을 보임을 관찰했습니다. ID 손실은 이어지는 특징을 직접적으로 제약하기 때문입니다.
+
+Market1501
+특징
+
+Metric
+
+(w/o BNNeck)
+(BNNeck 없이)
+
+Euclidean
+
+Feature
+
+지표
+
+DukeMTMC
+mAP
+
+mAP
+
+유클리드
+
+92.0
+
+81.7
+
+82.6
+
+70.6
+
+Euclidean 유클리드
+Cosine 코사인
+Euclidean 유클리드
+Cosine 코사인
+
+94.2
+94.2
+93.8
+
+85.5
+85.7
+83.7
+
+85.7
+85.5
+86.6
+
+74.4
+74.6
+73.0
+
+Table 2: Table 2. The ablation study of BNNeck. (w/o BNNeck) is baseline without BNNeck. BNNeck includes
+two features and . We evaluate the performance of them with Euclidean distance and cosine distance,
+respectively.
+표 2: BNNeck에 대한 소거 연구. (BNNeck 없음)은 BNNeck이 없는 기준 모델입니다. BNNeck은 과 두 가지 특징을
+포함합니다. 우리는 각각 유클리드 거리와 코사인 거리를 사용하여 이들의 성능을 평가했습니다.
+
+the BN layer, can be separated by several hyperplanes clearly. The cosine distance can measure the angle
+between two feature vectors, so cosine distance metric is more suitable than Euclidean distance metric for .
+However, is close to triplet loss and is constrained by ID loss at the same time. Two kinds of metrics achieve
+similar performance for .
+BN 레이어는 여러 초평면에 의해 명확하게 분리될 수 있습니다. 코사인 거리는 두 특징 벡터 사이의 각도를 측정할 수 있으므로,
+코사인 거리 메트릭이 유클리드 거리 메트릭보다 더 적합합니다. 그러나 은(는) 트리플렛 손실과 유사하며 동시에 ID 손실에
+의해 제약됩니다. 두 종류의 메트릭은 에 대해 유사한 성능을 달성합니다.
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 15 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+In overall, BNNeck significantly improve the performance of ReID models. We choose
+metric to do the retrieval in the inference stage.
+
+10/5/25, 5:26 PM
+
+with cosine distance
+
+전반적으로, BNNeck는 ReID 모델의 성능을 크게 향상시킵니다. 우리는 추론 단계에서 검색을 수행하기 위해 코사인 거리 메
+트릭을 사용하는 를 선택했습니다.
+
+4.3. Influences of Each Trick (Cross domain)
+4.3. 각 트릭의 영향 (교차 도메인)
+To further explore effectiveness, we also present the results of cross-domain experiments in Table. 3. In overview,
+three tricks including warmup strategy, label smoothing and BNNeck significantly boost the cross-domain
+performance of ReID models. Stride change and center loss seem to have no big impact on the performance.
+However, REA does harm to models in cross-domain ReID task. In particularly, when our modified baseline is
+trained without REA, it achieves
+and
+rank-1 accuracies on Market1501 and DukeMTMC-reID
+datasets, respectively. Its performance surpass the ones of the standard baseline by a large margin. We infer that
+REA masking the regions of training images lets the model learn more knowledge in the training domain. It causes
+the model to perform worse in
+효과성을 추가로 탐구하기 위해, 표 3에서 도메인 간 실험 결과도 제시합니다. 개요적으로, 웜업 전략, 레이블 스무딩 및
+BNNeck을 포함한 세 가지 트릭이 ReID 모델의 도메인 간 성능을 크게 향상시킵니다. 스트라이드 변경과 센터 손실은 성능에
+큰 영향을 미치지 않는 것으로 보입니다. 그러나 REA는 도메인 간 ReID 작업에서 모델에 해를 끼칩니다. 특히, 수정된 기준 모
+델이 REA 없이 훈련되었을 때, Market1501 및 DukeMTMC-reID 데이터셋에서 각각
+및
+rank-1 정확도를
+달성합니다. 이 모델의 성능은 표준 기준 모델의 성능을 큰 폭으로 능가합니다. 우리는 REA가 훈련 이미지의 영역을 마스킹함으
+로써 모델이 훈련 도메인에서 더 많은 지식을 학습하게 한다고 추론합니다. 이로 인해 모델이 다른 도메인에서 성능이 저하되는
+원인이 됩니다.
+
+Model
+
+모델
+
+Baseline 기준 모델
++warmup
++REA
++LS
++stride=1
++BNNeck
++center loss +센터 손실
+-REA
+
+mAP
+24.4
+26.3
+21.5
+23.2
+23.1
+26.7
+27.5
+41.4
+
+12.9
+14.1
+10.2
+11.3
+11.8
+15.2
+15.0
+25.7
+
+mAP
+34.2
+39.7
+32.5
+36.5
+37.1
+47.7
+47.4
+54.3
+
+Table 3: Table 3. The performance of different models is evaluated on cross-domain datasets.
+we train the model on Market1501 and evaluate it on DukeMTMC-reID.
+
+14.5
+17.4
+13.5
+14.9
+15.4
+21.6
+21.4
+25.5
+
+means that
+
+표 3: 표 3. 다양한 모델의 성능이 크로스 도메인 데이터셋에서 평가되었습니다.
+은 Market1501에서 모델을 훈련시키
+고 DukeMTMC-reID에서 평가했음을 의미합니다.
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 16 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+Type
+
+유형
+
+4
+3
+3
+5
+3
+1
+1
+6
+
+89.9
+87.7
+78.7
+92.5
+90.0
+90.6
+91.2
+93.8
+
+Market1501
+mAP
+73.9
+69.0
+56.0
+81.3
+75.3
+77.7
+75.2
+81.6
+
+1
+
+92.8
+
+82.1
+
+-
+
+-
+
+21
+
+95.7
+
+88.2
+
+89.0
+
+79.0
+
+BFE[1]
+Mancs [18]
+DuATM [14]
+HA-CNN [8]
+Camstyle [28]
+
+2
+1
+1
+4
+1
+
+94.5
+93.1
+91.4
+91.2
+88.1
+
+85.0
+82.3
+76.6
+75.7
+68.7
+
+88.7
+84.9
+81.2
+80.5
+75.3
+
+75.8
+71.8
+62.3
+63.8
+53.5
+
+PN-GAN [10]
+IDE [25]
+SVDNet [15]
+TriNet[6]
+AWTL[12]
+Ours 본 연구
+
+9
+1
+1
+1
+1
+
+89.4
+79.5
+82.3
+84.9
+89.5
+
+72.6
+59.9
+62.1
+69.1
+75.7
+
+73.6
+76.7
+79.8
+
+53.2
+56.8
+63.4
+
+1
+
+94.5
+
+85.9
+
+86.4
+
+76.4
+
+1
+
+95.4
+
+94.2
+
+90.3
+
+89.1
+
+Method
+
+Poseguided
+이드
+
+포즈 가
+
+Maskguided
+가이드
+
+마스…
+
+Stripebased
+이프 기반
+
+스트라
+
+방법론
+
+GLAD[19]
+PIE [23]
+PSE [13]
+SPReID [7]
+MaskReID [9]
+AlignedReID [21]
+SCPNet [3]
+PCB [16]
+Pyramid[22] 피라
+미드[22]
+Pyramid[22]
+미드[22]
+
+Attentionbased
+텐션 기반
+GANbased
+반
+
+어
+
+GAN 기
+
+Global feature
+특징
+
+전…
+
+Ours(RK)
+(RK)
+
+피라
+
+본 논문
+
+79.8
+84.4
+78.8
+81.2
+80.3
+83.3
+
+10/5/25, 5:26 PM
+
+DukeMTMC
+mAP
+62.0
+71.0
+61.9
+67.4
+62.6
+69.2
+
+Table 4: Table 4. Comparison of state-or-the-arts methods.
+is the number of features used in the inference
+stage. RK stands for reciprocal re-ranking method [26]
+표 4: 표 4. 최신 기법들 비교.
+
+은 추론 단계에서 사용된 특징의 수입니다. RK는
+
+상호 재순위화 방법 [26]을 나타냅니다.
+
+the testing domain. 테스트 도메인.
+4.4. Comparison of State-of-the-Arts
+4.4. 최첨단 기법 비교
+We compare out strong baseline with state-of-the-arts methods in Table. 4. All methods have been divided into
+different types. Pyramid[22] achieves surprising performance on two datasets. However, it concatenates 21 local
+features of different scale. If only utilizing the global feature, it obtains
+rank- 1 accuracy and
+mAP on
+Market1501. Ours strong baseline can reach
+rank-1 accuracy and
+on Market1501.
+obtains similar performance with our strong baseline. But it combines features of two branches. Throughout all
+methods that only use global features, our strong baseline beats AWTL[12] by more than
+on both
+Market1501 and DukeMTMC-reID. With -reciprocal re-ranking method to boost the performance, our method
+reaches
+and
+on Market1501 and DukeMTMC-reID, respectively. To our best knowledge,
+our baseline achieves best performance in the case of only using global features.
+표 4에서 우리의 강력한 기준 모델을 최첨단 방법들과 비교합니다. 모든 방법은 다른 유형으로 분류되었습니다. Pyramid[22]
+은 두 데이터셋에서 놀라운 성능을 달성합니다. 그러나 이는 21개의 다른 스케일의 로컬 특징을 연결합니다. 전역 특징만을 사용
+할 경우, Market1501에서
+rank-1 정확도와
+mAP를 얻습니다. 우리의 강력한 기준 모델은 Market1501에서
+rank-1 정확도와
+에 도달할 수 있습니다.
+은 우리의 강력한 기준 모델과 유사한 성능을 얻습니
+다. 하지만 이는 두 분기의 특징을 결합합니다. 전역 특징만을 사용하는 모든 방법을 통해, 우리의 강력한 기준 모델은
+Market1501과 DukeMTMC-reID 모두에서 AWTL[12]보다
+이상 높은 성능을 보입니다. -reciprocal reranking 방법을 사용하여 성능을 향상시킴으로써, 우리의 방법은 Market1501과 DukeMTMC-reID에서 각각
+과
+에 도달합니다. 우리가 아는 한, 우리의 기준 모델은 전역 특징만을 사용하는 경우 최고의 성능을 달성합니다.
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 17 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+5. Supplementary Experiments
+5. 추가 실험
+We observed that some previous works were done with different the numbers of batch size or image sizes. In this
+section, as a supplementary we explore the affects of them on model performance.
+우리는 이전의 일부 연구들이 서로 다른 배치 크기나 이미지 크기로 수행되었음을 관찰했습니다. 본 섹션에서는 보충적으로 이들
+이 모델 성능에 미치는 영향을 탐구합니다.
+
+Batch Size
+
+배치 크기
+
+Market1501
+
+DukeMTMC
+mAP
+
+92.6
+92.9
+93.5
+93.9
+93.8
+93.8
+94.0
+93.1
+94.5
+93.2
+
+79.2
+80.0
+81.6
+82.0
+83.1
+83.7
+82.8
+81.6
+84.1
+82.8
+
+mAP
+84.4
+84.7
+85.1
+85.8
+86.8
+86.6
+85.1
+86.7
+86.0
+86.5
+
+68.1
+69.4
+70.7
+71.5
+72.1
+73.0
+69.9
+72.1
+71.4
+73.1
+
+Table 5: Table 5. Performance of ReID models with different numbers of batch size.
+표 5: 다른 배치 크기에 따른 ReID 모델의 성능.
+
+5.1. Influences of the Number of Batch Size
+5.1. 배치 크기 수의 영향
+The mini-batch of triplet loss includes
+images. and denote the number of different persons and
+the number of different images per person, respectively. A mini-batch can only contain up to 128 images in one
+GPU, so that we can not do the experiments with
+or
+. We removed center loss to
+clearly find the relation between triplet loss and batch size. The results are present in Table. 5. However, there are
+not specific conclusions to show the effect of on performance. A slight trend we observed is that larger batch size
+is beneficial for the model performance. We infer that large helps to mine hard positive pairs while large helps
+to mining hard negative pairs.
+Triplet loss의 미니 배치는
+이미지를 포함합니다. 과 은 각각 다른 사람의 수와 사람당 다른 이미지의 수를
+나타냅니다. 미니 배치는 하나의 GPU에서 최대 128개의 이미지만 포함할 수 있으므로,
+또는
+로는 실험을 수행할 수 없었습니다. 우리는 triplet loss와 배치 크기 간의 관계를 명확히 파악하기 위해
+center loss를 제거했습니다. 결과는 표 5에 제시되어 있습니다. 그러나 성능에 대한 의 효과를 보여주는 구체적인 결론은 없
+습니다. 우리가 관찰한 약간의 경향은 더 큰 배치 크기가 모델 성능에 유리하다는 것입니다. 우리는 큰 이 hard positive 쌍을
+찾는 데 도움이 되고, 큰 이 hard negative 쌍을 찾는 데 도움이 된다고 추론합니다.
+
+5.2. Influences of Image Size
+5.2. 이미지 크기의 영향
+Market1501
+Image Size
+
+이미지 크기
+
+DukeMTMC
+
+r
+
+mAP
+
+r=1
+
+mAP
+
+93.8
+94.2
+94.0
+93.8
+
+83.7
+83.3
+82.7
+83.1
+
+86.6
+86.1
+86.4
+87.1
+
+73.0
+72.2
+73.2
+72.9
+
+Table 6: Table 6. Performance of ReID models with different image sizes.
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 18 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+표 6: 서로 다른 이미지 크기를 사용한 ReID 모델의 성능.
+
+We trained models without center loss and set
+. As shown in Table. 6, four models achieve similar
+performances on both datasets. In our opinion, the image size is not a pretty importance factor for the
+performance of ReID models.
+센터 손실 없이 모델을 훈련시키고
+로 설정했습니다. 표 6에서 보여주듯이, 네 개의 모델은 두 데이터셋 모두
+에서 유사한 성능을 달성했습니다. 우리의 의견으로는, 이미지 크기는 ReID 모델의 성능에 매우 중요한 요소가 아닙니다.
+
+6. Conclusions and Outlooks
+6. 결론 및 전망
+In this paper, we collect some effective training tricks and design a strong baseline for person ReID. To
+demonstrate the influences of each trick on the performance of ReID models, we do a lot of experiments on both
+samedomain and cross-domain ReID tasks. Finally, only using
+본 논문에서는 우리는 몇 가지 효과적인 훈련 기법들을 수집하고 person ReID를 위한 강력한 기준 모델을 설계합니다. 각 기법
+이 ReID 모델의 성능에 미치는 영향을 입증하기 위해, 우리는 동일 도메인 및 교차 도메인 ReID 작업 모두에서 많은 실험을 수
+행합니다. 마지막으로, 다음만 사용하여
+global features, our strong baseline achieve
+rank-1 accuracy and
+this work can promote the ReID research in academia and industry.
+
+on Market1501. We hope that
+
+전역 특징을 사용하여, 우리의 강력한 기준 모델은 Market1501에서
+의 rank-1 정확도와
+다. 우리는 이 작업이 학계와 산업계에서 ReID 연구를 촉진할 수 있기를 바랍니다.
+
+을 달성했습니
+
+However, the purpose of our work is not to improve performance roughly. Compared with face recognition, person
+ReID still has a long way to explore. We think some training tricks can speed up the exploration and there are
+many effective tricks not discovered. We welcome researchers to share some other effective tricks with us. We will
+evaluate them based on this work.
+하지만 우리 연구의 목적은 성능을 대략적으로 개선하는 것이 아닙니다. 얼굴 인식과 비교할 때, person ReID는 여전히 탐구할
+길이 멀고도 깝습니다. 우리는 일부 훈련 트릭이 탐구 속도를 높일 수 있다고 생각하며, 아직 발견되지 않은 많은 효과적인 트릭
+들이 존재합니다. 우리는 다른 연구자들이 효과적인 트릭들을 우리와 공유해 주시기를 환영합니다. 우리는 이 연구를 기반으로
+그 트릭들을 평가할 것입니다.
+
+In the future, we will continue to design more experiments to analyze the principles of these trciks. For example,
+when we replace the BNNeck with L2 normalization, what does the performance of this network become? In
+addition, whether can some state-of-the-arts methods such as PCB, MGN and AlignedReID, etc. be expanded on
+our strong baseline? More visualization also is helpful for others to understand this work.
+앞으로 우리는 이러한 트릭들의 원리를 분석하기 위해 더 많은 실험을 계속 설계할 것입니다. 예를 들어, BNNeck을 L2 정규화
+로 대체할 때 이 네트워크의 성능은 어떻게 될까요? 또한, PCB, MGN 및 AlignedReID와 같은 일부 최신 방법들을 우리의 강
+력한 기준 모델로 확장할 수 있을까요? 더 많은 시각화 자료 또한 다른 사람들이 이 작업을 이해하는 데 도움이 될 것입니다.
+
+7. Acknowledge 7. 감사의 글
+This work is supported by the National Natural Science Foundation of China (No. 61633019) and the Science
+Foundation of Chinese Aerospace Industry (JCKY2018204B053).
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 19 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+본 연구는 중국 국가자연과학기금(No. 61633019)과 중국 항공우주 산업 과학기금(JCKY2018204B053)의 지원을 받았습니
+다.
+
+References 참고문헌
+[1] Zuozhuo Dai, Mingqiang Chen, Siyu Zhu, and Ping Tan. Batch feature erasing for person re-identification and
+beyond. arXiv preprint arXiv:1811.07130, 2018.
+[2] Xing Fan, Wei Jiang, Hao Luo, and Mengjuan Fei. Spherereid: Deep hypersphere manifold embedding for
+person reidentification. Journal of Visual Communication and Image Representation, 2019.
+[3] Xing Fan, Hao Luo, Xuan Zhang, Lingxiao He, Chi Zhang, and Wei Jiang. Scpnet: Spatial-channel parallelism
+network for joint holistic and partial person re-identification. arXiv preprint arXiv:1810.06996, 2018.
+[4] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Delving deep into rectifiers: Surpassing human-level
+performance on imagenet classification. In Proceedings of the IEEE international conference on computer vision,
+pages 1026-1034, 2015.
+[5] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image recognition. In
+Proceedings of the IEEE conference on computer vision and pattern recognition, pages 770-778, 2016.
+[6] Alexander Hermans, Lucas Beyer, and Bastian Leibe. In defense of the triplet loss for person re-identification.
+arXiv preprint arXiv:1703.07737, 2017.
+[7] Mahdi M Kalayeh, Emrah Basaran, Muhittin Gökmen, Mustafa E Kamasak, and Mubarak Shah. Human
+semantic parsing for person re-identification. In Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition, pages 1062-1071, 2018.
+[8] Wei Li, Xiatian Zhu, and Shaogang Gong. Harmonious attention network for person re-identification. In
+Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 2285-2294, 2018.
+[9] Lei Qi, Jing Huo, Lei Wang, Yinghuan Shi, and Yang Gao. Maskreid: A mask based deep ranking neural
+network for person re-identification. arXiv preprint arXiv:1804.03864, 2018.
+[10] Xuelin Qian, Yanwei Fu, Tao Xiang, Wenxuan Wang, Jie Qiu, Yang Wu, Yu-Gang Jiang, and Xiangyang Xue.
+Posenormalized image generation for person re-identification. In Proceedings of the European Conference on
+Computer Vision (ECCV), pages 650-667, 2018.
+[11] Ergys Ristani, Francesco Solera, Roger Zou, Rita Cucchiara, and Carlo Tomasi. Performance measures and a
+data set for multi-target, multi-camera tracking. In European Conference on Computer Vision workshop on
+Benchmarking MultiTarget Tracking, 2016.
+[11] Ergys Ristani, Francesco Solera, Roger Zou, Rita Cucchiara, Carlo Tomasi. 성능 측정 및 다중 대상, 다중 카메라
+추적을 위한 데이터 세트. 유럽 컴퓨터 비전 컨퍼런스 다중 대상 추적 벤치마킹 워크샵, 2016.
+[12] Ergys Ristani and Carlo Tomasi. Features for multi-target multi-camera tracking and re-identification. In
+Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 6036-6046, 2018.
+[12] Ergys Ristani와 Carlo Tomasi. 다중 대상 다중 카메라 추적 및 재식별을 위한 특징. IEEE 컴퓨터 비전 패턴 인식 컨퍼
+런스 논문집, 페이지 6036-6046, 2018.
+[13] M. Saquib Sarfraz, Arne Schumann, Andreas Eberle, and Rainer Stiefelhagen. A pose-sensitive embedding for
+person re-identification with expanded cross neighborhood reranking. In The IEEE Conference on Computer
+Vision and Pattern Recognition (CVPR), June 2018.
+[14] Jianlou Si, Honggang Zhang, Chun-Guang Li, Jason Kuen, Xiangfei Kong, Alex C Kot, and Gang Wang. Dual
+attention matching network for context-aware feature sequence based person re-identification. In Proceedings of
+the IEEE Conference on Computer Vision and Pattern Recognition, pages 5363-5372, 2018.
+[15] Yifan Sun, Liang Zheng, Weijian Deng, and Shengjin Wang. Svdnet for pedestrian retrieval. In Proceedings of
+the IEEE International Conference on Computer Vision, pages 38003808, 2017.
+[16] Yifan Sun, Liang Zheng, Yi Yang, Qi Tian, and Shengjin Wang. Beyond part models: Person retrieval with
+refined part pooling (and a strong convolutional baseline). In Proceedings of the European Conference on
+Computer Vision (ECCV), pages 480-496, 2018.
+[17] Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jon Shlens, and Zbigniew Wojna. Rethinking the
+inception architecture for computer vision. In Proceedings of the IEEE conference on computer vision and pattern
+recognition, pages 2818-2826, 2016.
+[17] Christian Szegedy, Vincent Vanhoucke, Sergey Ioffe, Jon Shlens, and Zbigniew Wojna. 컴퓨터 비전을 위한 인
+셉션 아키텍처 재고찰. IEEE 컴퓨터 비전 및 패턴 인식 컨퍼런스 논문집, 페이지 2818-2826, 2016.
+[18] Cheng Wang, Qian Zhang, Chang Huang, Wenyu Liu, and Xinggang Wang. Mancs: A multi-task attentional
+network with curriculum sampling for person re-identification. In Proceedings of the European Conference on
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 20 of 21
+
+Luo_Bag_of_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2…_Tricks_and_a_Strong_Baseline_for_Deep_Person_CVPRW_2019_paper
+
+10/5/25, 5:26 PM
+
+Computer Vision (ECCV), pages 365-381, 2018.
+[19] Longhui Wei, Shiliang Zhang, Hantao Yao, Wen Gao, and Qi Tian. Glad: Global-local-alignment descriptor for
+pedestrian retrieval. In Proceedings of the 25th ACM international conference on Multimedia, pages 420-428.
+ACM, 2017.
+[20] Yandong Wen, Kaipeng Zhang, Zhifeng Li, and Yu Qiao. A discriminative feature learning approach for deep
+face recog[20] Yandong Wen, Kaipeng Zhang, Zhifeng Li, and Yu Qiao. 딥 페이스 인식을 위한 판별적 특징 학습 접근법
+nition. In European conference on computer vision, pages 499-515. Springer, 2016.
+[21] Xuan Zhang, Hao Luo, Xing Fan, Weilai Xiang, Yixiao Sun, Qiqi Xiao, Wei Jiang, Chi Zhang, and Jian Sun.
+Alignedreid: Surpassing human-level performance in person reidentification. arXiv preprint arXiv:1711.08184,
+2017.
+[22] Feng Zheng, Xing Sun, Xinyang Jiang, Xiaowei Guo, Zongqiao Yu, and Feiyue Huang. A coarse-to-fine
+pyramidal model for person re-identification via multi-loss dynamic training. arXiv preprint arXiv:1810.12193,
+2018.
+[23] Liang Zheng, Yujia Huang, Huchuan Lu, and Yi Yang. Pose invariant embedding for deep person reidentification. arXiv preprint arXiv:1701.07732, 2017.
+[24] Liang Zheng, Liyue Shen, Lu Tian, Shengjin Wang, Jingdong Wang, and Qi Tian. Scalable person reidentification: A benchmark. In Computer Vision, IEEE International Conference, 2015.
+[24] Liang Zheng, Liyue Shen, Lu Tian, Shengjin Wang, Jingdong Wang, and Qi Tian. 확장 가능한 개인 재식별: 벤
+치마크. In Computer Vision, IEEE International Conference, 2015.
+[25] Zhedong Zheng, Liang Zheng, and Yi Yang. A discriminatively learned cnn embedding for person
+reidentification. ACM Transactions on Multimedia Computing, Communications, and Applications (TOMM),
+14(1):13, 2018.
+[25] Zhedong Zheng, Liang Zheng, Yi Yang. 개인 재식별을 위한 판별적으로 학습된 CNN 임베딩. ACM Transactions
+on Multimedia Computing, Communications, and Applications (TOMM), 14(1):13, 2018.
+[26] Zhun Zhong, Liang Zheng, Donglin Cao, and Shaozi Li. Reranking person re-identification with k-reciprocal
+encoding. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 1318-1327,
+2017.
+[26] Zhun Zhong, Liang Zheng, Donglin Cao, and Shaozi Li. k-reciprocal 인코딩을 이용한 개인 재식별 순위 재조정.
+In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, pages 1318-1327, 2017.
+[27] Zhun Zhong, Liang Zheng, Guoliang Kang, Shaozi Li, and Yi Yang. Random erasing data augmentation. arXiv
+preprint arXiv:1708.04896, 2017.
+[28] Zhun Zhong, Liang Zheng, Zhedong Zheng, Shaozi Li, and Yi Yang. Camstyle: A novel data augmentation
+method for person re-identification. IEEE Transactions on Image Processing, 28(3):1176-1190, 2019.
+*Equal contributions. This work was partially done when Hao Luo and Xingyu Liao were interns at Megvii Inc.
+*동등한 기여. 이 연구는 Hao Luo와 Xingyu Liao가 Megvii Inc.에서 인턴으로 재직 중일 때 부분적으로 수행되었습니
+다.
+https://github.com/Cysu/open-reid
+
+https://app.immersivetranslate.com/pdf-pro/36c5c4cc-aceb-4cd5-9fd7-e65945ce0c19/
+
+Page 21 of 21
+
+
