@@ -172,6 +172,58 @@ Tool use: **codebase_search**
 
 Tool use: **grep**
 
+<details>
+<summary>Grep for "export\.|export\s+|def\s+export|subparsers\.add_parser\(\s*["']export["']" in "/home/jongphago/projects/tao_pytorch_backend" • 40 matches</summary>
+
+Output mode: content
+
+
+| Content | Line |
+|------|------|
+| `export (bool, optional): Export model if True. Defaults to False.` | L49 |
+| `export (bool): Export model if True.` | L76 |
+| `"""Functions to export models into the ONNX IR format.` | L15 |
+| `"""Returns whether it is in the middle of ONNX export."""` | L84 |
+| `"Opset versions lower than opset 12 will not be able to export "` | L122 |
+| `def exporter_context(model, mode: _C_onnx.TrainingMode, verbose: bool):` | L191 |
+| `def export(` | L203 |
+| `be exported. Set this to False if you want to export an untrained model.` | L299 |
+| `* ``TrainingMode.EVAL``: export the model in inference mode.` | L307 |
+| `* ``TrainingMode.PRESERVE``: export the model in inference mode if model.training is` | L308 |
+| `* ``TrainingMode.TRAINING``: export the model in training mode. Disables optimizations` | L310 |
+| `* ``OperatorExportTypes.ONNX_ATEN_FALLBACK``: Try to export each ATen op` | L340 |
+| `particular types of modules to export as local functions in ONNX.` | L490 |
+| `This feature requires ``opset_version`` >= 15, otherwise the export will fail. This is because` | L491 |
+| `* ``False`` (default): export ``nn.Module`` forward calls as fine grained nodes.` | L507 |
+| `* ``True``: export all ``nn.Module`` forward calls as local function nodes.` | L508 |
+| `* Set of type of nn.Module: export ``nn.Module`` forward calls as local function nodes,` | L509 |
+| `:class:`torch.onnx.errors.OnnxExporterError`: Other errors that can occur during export.` | L516 |
+| `initializers as graph inputs (val_keep_init_as_ip) based on export type. If export type` | L767 |
+| `export types keep initializers as input (val_keep_init_as_ip=True).` | L769 |
+| `"'keep_initializers_as_inputs=False' is ignored during export."` | L784 |
+| `def export_to_pretty_string(` | L1216 |
+| `assert GLOBALS.in_onnx_export is False` | L1476 |
+| `GLOBALS.in_onnx_export = True` | L1516 |
+| `# valid `model_file_location`. Code in export.cpp will enforce this.` | L1537 |
+| `defer_weight_export = (` | L1561 |
+| `raise RuntimeError("Unknown export type")` | L1665 |
+| `# If large model format export is enabled, proto will only contain data location instead of` | L1669 |
+| `GLOBALS.in_onnx_export = False` | L1681 |
+| `is_onnx_aten_export = operator_export_type == _C_onnx.OperatorExportTypes.ONNX_ATEN` | L1773 |
+| `is_aten_fallback_export = (` | L1774 |
+| `is_onnx_aten_export or is_aten_fallback_export` | L1784 |
+| `if is_onnx_aten_export or (` | L1788 |
+| `is_aten_fallback_export and not is_exportable_aten_op` | L1789 |
+| `The function is used in C++ to export the node to ONNX.` | L1859 |
+| `# Direct ATen export requested` | L1887 |
+| `from nvidia_tao_pytorch.pointcloud.pointpillars.tools.export.decorators import override, subclass` | L30 |
+| `"""Logger for data export APIs."""` | L33 |
+| `from nvidia_tao_pytorch.pointcloud.pointpillars.tools.export.tensorrt import (` | L30 |
+| `"value and re-export to ONNX model and TensorRT "` | L159 |
+
+
+</details>
+
 ---
 
 
