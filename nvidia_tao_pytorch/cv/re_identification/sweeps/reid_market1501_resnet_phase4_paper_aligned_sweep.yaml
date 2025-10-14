@@ -31,10 +31,4 @@ parameters:
 
 count: 40
 results_dir_base: /results/results/market1501/resnet50/phase4_paper_aligned
-early_terminate:
-  type: hyperband
-  max_iter: 12
-  s: 2
-  eta: 3
-  min_iter: 5
 
